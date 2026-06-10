@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero Carousel — Responsive Crop Simulator</title>
+<style>
+  :root{
+    --bg:#0c0d10; --panel:#13141a; --panel2:#191b22; --line:#23252e;
+    --txt:#e6e8ed; --dim:#878d9a; --accent:#3a3e4a; --accentline:#555b6a;
+    --ok:#dfe2e8; --warn:#9aa1ae; --bad:#717682;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+  /* ---------- Sidebar ---------- */
+  aside{background:var(--panel);border-right:1px solid var(--line);padding:18px 16px;overflow-y:auto}
+  aside h1{font-size:15px;font-weight:700;letter-spacing:.2px;margin-bottom:2px}
+  aside .sub{color:var(--dim);font-size:11.5px;margin-bottom:18px}
+  .group{margin-bottom:20px}
+  .group>label{display:block;font-size:10.5px;font-weight:700;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+  .btns{display:flex;flex-wrap:wrap;gap:6px}
+  .btns button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);font-size:11.5px;padding:6px 9px;border-radius:7px;cursor:pointer;transition:.15s}
+  .btns button:hover{border-color:#3a4252}
+  .btns button.on{background:var(--accent);border-color:var(--accentline);color:#fff;font-weight:600}
+  .btns.col button{flex:1 1 100%;text-align:left}
+  .btns button small{display:block;color:rgba(255,255,255,.55);font-size:10px;font-weight:400}
+  .btns button.on small{color:rgba(255,255,255,.8)}
+  .sliders{display:grid;gap:8px;margin-top:8px}
+  .sliders .row{display:grid;grid-template-columns:18px 1fr 52px;align-items:center;gap:8px;font-size:11px;color:var(--dim)}
+  input[type=range]{width:100%;accent-color:#8b93a5}
+  .note{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.4}
+  #drop{border:1.5px dashed #3a4252;border-radius:8px;padding:12px 10px;text-align:center;font-size:11.5px;color:var(--dim);cursor:pointer;transition:.15s;line-height:1.5}
+  #drop:hover,#drop.over{border-color:#6b7280;color:var(--txt);background:#ffffff08}
+  #drop b{color:var(--txt)}
+  #imgInfo{font-size:11px;color:var(--ok);margin-top:6px;display:none}
+  /* ---------- Main ---------- */
+  main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+  .readouts{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px;min-width:118px}
+  .chip .k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
+  .chip .v{font-size:16px;font-weight:700;margin-top:2px}
+  .chip .v small{font-size:11px;font-weight:400;color:var(--dim)}
+  .chip.ok .v{color:var(--ok)} .chip.warn .v{color:var(--warn)} .chip.bad .v{color:var(--bad)}
+  /* ---------- Stage ---------- */
+  .stagewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;min-height:420px}
+  .stagehead{display:flex;justify-content:space-between;align-items:baseline;color:var(--dim);font-size:11.5px}
+  .stagehead b{color:var(--txt)}
+  #stageArea{flex:1;position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+  #device{position:relative;background:#000;border-radius:6px;outline:2px solid #2c3340;box-shadow:0 18px 50px rgba(0,0,0,.5);transform-origin:top center;overflow:visible}
+  #vp{position:relative;width:100%;background:#0a0c10;overflow:visible;font-family:inherit}
+  #foldline{position:absolute;left:0;right:0;border-top:2px dashed rgba(214,218,226,.75);z-index:30;pointer-events:none}
+  #foldline span{position:absolute;right:8px;top:4px;background:rgba(222,226,233,.92);color:#15171c;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
+  #belowfold{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 10px,transparent 10px,transparent 20px);pointer-events:none;z-index:29}
+  .s-header{height:64px;display:flex;align-items:center;gap:28px;padding:0 48px;background:linear-gradient(#000c,#0000);position:relative;z-index:20}
+  .s-logo{width:120px;height:26px;border-radius:4px;background:linear-gradient(90deg,#3c414d,#23262e)}
+  .s-nav{display:flex;gap:22px}
+  .s-nav i{display:block;width:64px;height:12px;border-radius:6px;background:#ffffff2e}
+  .s-hero{position:relative;width:100%;overflow:hidden;background:#000}
+  .s-hero .amb{position:absolute;inset:0;overflow:hidden}
+  .s-hero .amb img{width:100%;height:100%;object-fit:cover;filter:blur(60px) brightness(.4) saturate(.85);transform:scale(1.15)}
+  .s-hero .stage{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);overflow:hidden}
+  .s-hero .stage img{width:100%;height:100%;object-fit:cover;display:block}
+  .s-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,7,10,.78) 0%,rgba(5,7,10,.25) 38%,transparent 60%),linear-gradient(0deg,rgba(10,12,16,.95) 0%,transparent 32%);pointer-events:none}
+  .s-meta{position:absolute;left:48px;bottom:9%;z-index:5;max-width:46%}
+  .s-tag{display:inline-block;background:#ffffff1c;border:1px solid #ffffff33;color:#e6e8ed;font-size:11px;font-weight:800;letter-spacing:1.5px;padding:4px 10px;border-radius:3px;margin-bottom:14px;backdrop-filter:blur(4px)}
+  .s-title{font-size:44px;line-height:1.04;font-weight:800;letter-spacing:-.5px;text-shadow:0 2px 18px rgba(0,0,0,.6)}
+  .s-desc{margin-top:12px;color:#cfd5e2;font-size:15px;max-width:520px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+  .s-ctas{margin-top:18px;display:flex;gap:12px}
+  .s-play{background:#fff;color:#000;font-weight:700;font-size:14px;padding:11px 26px;border-radius:6px}
+  .s-more{background:#ffffff26;color:#fff;font-weight:600;font-size:14px;padding:11px 22px;border-radius:6px;backdrop-filter:blur(4px)}
+  .s-dots{position:absolute;right:48px;bottom:9%;display:flex;gap:7px;z-index:5}
+  .s-dots i{width:7px;height:7px;border-radius:50%;background:#ffffff45}
+  .s-dots i:first-child{background:#fff;width:22px;border-radius:4px}
+  .s-rail{padding:22px 48px 30px;position:relative;z-index:6}
+  .s-rail h3{font-size:19px;font-weight:700;margin-bottom:13px}
+  .s-cards{display:flex;gap:14px;overflow:hidden}
+  .s-card{flex:0 0 auto;border-radius:8px;background:linear-gradient(135deg,#222a38,#161b25);position:relative;overflow:hidden}
+  .s-card:after{content:"";position:absolute;left:10px;bottom:10px;width:55%;height:9px;border-radius:5px;background:#ffffff2b}
+  .focal-marker{position:absolute;z-index:8;width:18px;height:18px;margin:-9px 0 0 -9px;border:2.5px solid #f2f4f8;border-radius:50%;box-shadow:0 0 10px #000000b0, inset 0 0 6px #ffffff55;pointer-events:none}
+  .focal-marker.hidden{display:none}
+  /* ---------- bottom panels ---------- */
+  .bottom{display:grid;grid-template-columns:300px 1fr;gap:14px}
+  .panelbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .panelbox h4{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+  #inspWrap{position:relative;overflow:hidden;border-radius:6px;line-height:0;cursor:crosshair}
+  #inspImg{width:100%;display:block;border-radius:6px}
+  #inspWin{position:absolute;border:2px solid #eef0f4;border-radius:3px;box-shadow:0 0 0 9999px rgba(0,0,0,.62);pointer-events:none}
+  #inspFocal{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border:2px solid #b9bfca;background:#0c0d10aa;border-radius:50%;pointer-events:none}
+  .legend{display:flex;gap:14px;margin-top:8px;font-size:10.5px;color:var(--dim)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+  pre{background:#0e0f13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:11.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:#b6bcc8;overflow-x:auto;white-space:pre}
+  pre .hl{color:#f0f2f6;font-weight:600}
+  pre .cm{color:#5c616d}
+  @media (max-width:1100px){ .app{grid-template-columns:1fr} aside{border-right:none;border-bottom:1px solid var(--line)} .bottom{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <h1>Hero Crop Simulator</h1>
+  <div class="sub">Hero + first-rail-peek behavior across devices, crops &amp; strategies</div>
+
+  <div class="group">
+    <label>Source image (master)</label>
+    <div id="drop"><b>Drop a photo here</b> or click to browse.<br>Stays in your browser — nothing is uploaded.</div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <div id="imgInfo"></div>
+    <div class="note">Then <b>click the source image</b> (bottom-left panel) to set the focal point — e.g. the rider’s helmet.</div>
+  </div>
+
+  <div class="group">
+    <label>Backend crop derivation</label>
+    <div class="btns col" id="derives"></div>
+    <div class="note">How the DAM derives renditions from the master — today’s pipeline vs a focal-aware one.</div>
+  </div>
+
+  <div class="group">
+    <label>Device (CSS pixels)</label>
+    <div class="btns col" id="devices"></div>
+    <div class="sliders">
+      <div class="row"><span>W</span><input type="range" id="vw" min="1000" max="5200" step="2" value="1512"><b id="vwv">1512</b></div>
+      <div class="row"><span>H</span><input type="range" id="vh" min="700" max="2200" step="2" value="982"><b id="vhv">982</b></div>
+    </div>
+  </div>
+
+  <div class="group">
+    <label>Backend crop used for hero</label>
+    <div class="btns" id="crops"></div>
+    <div class="note" id="cropnote"></div>
+  </div>
+
+  <div class="group">
+    <label>Focal / alignment (object-position)</label>
+    <div class="btns col" id="focals"></div>
+  </div>
+
+  <div class="group">
+    <label>Ultra-wide strategy <span style="text-transform:none;letter-spacing:0;font-weight:400">(only kicks in at viewport ≥ 2:1)</span></label>
+    <div class="btns col" id="strats"></div>
+  </div>
+
+  <div class="group">
+    <label>Overlays</label>
+    <div class="btns" id="overlays">
+      <button id="togFocal" class="on">Focal marker</button>
+      <button id="togFold" class="on">Fold line</button>
+    </div>
+  </div>
+</aside>
+
+<main>
+  <div class="readouts" id="readouts"></div>
+
+  <div class="stagewrap">
+    <div class="stagehead">
+      <span><b id="devLabel"></b> &nbsp;·&nbsp; rendered at <b id="scaleLabel"></b> scale</span>
+      <span id="modeLabel"></span>
+    </div>
+    <div id="stageArea">
+      <div id="device">
+        <div id="vp">
+          <div class="s-header"><div class="s-logo"></div><div class="s-nav"><i></i><i></i><i></i><i></i></div></div>
+          <div class="s-hero" id="hero">
+            <div class="amb" id="amb" style="display:none"><img id="ambImg" alt=""></div>
+            <div class="stage" id="heroStage">
+              <img id="heroImg" alt="">
+              <div class="focal-marker" id="focalMark"></div>
+            </div>
+            <div class="s-scrim"></div>
+            <div class="s-meta">
+              <span class="s-tag">LIVE · MTB</span>
+              <div class="s-title">Red Bull Rampage<br>Finals 2026</div>
+              <div class="s-desc">The world’s best freeriders drop into Virgin, Utah for the most consequential lines of the season.</div>
+              <div class="s-ctas"><span class="s-play">▶&nbsp; Watch now</span><span class="s-more">＋ Watchlist</span></div>
+            </div>
+            <div class="s-dots"><i></i><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="s-rail">
+            <h3>Continue Watching</h3>
+            <div class="s-cards" id="cards"></div>
+          </div>
+        </div>
+        <div id="foldline"><span>FOLD — 75% of rail above this line</span></div>
+        <div id="belowfold"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <div class="panelbox">
+      <h4>Source crop inspector — click to set focal point</h4>
+      <div id="inspWrap">
+        <img id="inspImg" alt="">
+        <div id="inspWin"></div>
+        <div id="inspFocal"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:#eef0f4"></i>visible window</span>
+        <span><i style="background:#b9bfca;border-radius:50%"></i>focal point</span>
+      </div>
+      <div class="note" id="inspNote"></div>
+    </div>
+    <div class="panelbox">
+      <h4>Active CSS logic</h4>
+      <pre id="cssOut"></pre>
+    </div>
+  </div>
+</main>
+</div>
+
+<script>
+/* ============================================================
+   PIPELINE (mirrors a real DAM):
+   1. MASTER image — any resolution, any ratio (drop your own).
+   2. Backend "renditions" are derived from the master at fixed
+      ratios (3:2, 16:9, 21:9, 7:2) — either center-weighted
+      (today) or focal-aware.
+   3. The client covers the hero container with the chosen
+      rendition and steers it with object-position.
+   Everything is computed in FRACTIONS — intrinsic resolution is
+   irrelevant on the client, exactly as in production.
+============================================================ */
+
+const RATIO_DEFS = {
+  '3:2'  : {label:'3:2 · landscape', ratio:3/2,
+            note:'Current candidate. In a typical ~2.3:1 hero container, cover-cropping discards ≈35% of the image height.'},
+  '16:9' : {label:'16:9 · 10-foot',  ratio:16/9,
+            note:'Already produced for TV. Loses ≈22% of height in a 2.3:1 container — workable as a stopgap with a focal point.'},
+  '21:9' : {label:'21:9 · proposed', ratio:21/9,
+            note:'Proposed new rendition (2.33:1, cinematic). Near-perfect match for the natural hero container on every laptop/desktop.'},
+  '7:2'  : {label:'7:2 · banner',    ratio:7/2,
+            note:'Too short. Even full-bleed it reads as a banner; in laptop containers it crops the sides heavily.'},
+};
+
+const DERIVES = [
+  {k:'center', n:'Center-weighted (today)', d:'Renditions are cut from the middle of the master — no metadata'},
+  {k:'focal',  n:'Focal-aware (proposed)',  d:'Renditions keep the focal point in frame with sensible headroom'},
+];
+
+const DEVICES = [
+  {n:'12″ laptop',        d:'1280 × 800 · 16:10',  w:1280, h:800},
+  {n:'Small laptop / ThinkPad', d:'1366 × 768 · 16:9', w:1366, h:768},
+  {n:'14″ MacBook Pro',   d:'1512 × 982 · 16:10',  w:1512, h:982},
+  {n:'16″ MacBook Pro',   d:'1728 × 1117 · 16:10', w:1728, h:1117},
+  {n:'FHD desktop',       d:'1920 × 1080 · 16:9',  w:1920, h:1080},
+  {n:'QHD desktop',       d:'2560 × 1440 · 16:9',  w:2560, h:1440},
+  {n:'4K @ 1× (worst case)', d:'3840 × 2160 · 16:9', w:3840, h:2160},
+  {n:'Ultra-wide 21:9',   d:'3440 × 1440 · 21:9',  w:3440, h:1440},
+  {n:'Super ultra-wide 32:9', d:'5120 × 1440 · 32:9', w:5120, h:1440},
+];
+
+const FOCALS = [
+  {k:'center', n:'Center crop (today)',  d:'object-position: 50% 50% — what you get with no metadata', pos:c=>[.5,.5]},
+  {k:'smart',  n:'Smart default (top-bias)', d:'object-position: 50% 30% — zero metadata, heads live in the top half', pos:c=>[.5,.30]},
+  {k:'focal',  n:'Backend focal point',  d:'object-position: var(--fx) var(--fy) — per-image metadata', pos:c=>[c.fx, c.fy]},
+];
+
+const STRATS = [
+  {k:'bleed', n:'A · Crop through (full bleed)', d:'Keep covering — image absorbs all the extra width'},
+  {k:'ambient', n:'B · Ambient fill (recommended)', d:'Cap the image at 21:9, fill the rest with a blurred self-extension'},
+  {k:'maxw', n:'C · Hard max-width + padding', d:'Cap whole hero at 2560px, side gutters appear'},
+];
+
+const HEADER = 64, RAIL_TITLE = 32, RAIL_PAD_T = 22, RAIL_PAD_B = 30;
+const PEEK_FRACTION = .75, MIN_HERO = 400;
+const HEADROOM = .30;          // focal-aware derivation: focal sits 30% from window top
+const HEAD_FRAC = .055;        // assumed head radius ≈ 5.5% of master height around focal
+const MAX_RENDITION_W = 2200;  // cap derived rendition width (perf only)
+
+const state = { dev:2, crop:'21:9', focal:'focal', strat:'ambient', derive:'focal',
+                showFocal:true, showFold:true, custom:false };
+
+let master = null;            // {img, w, h, name}
+let focal  = {x:.55, y:.21};  // fractions of MASTER
+let CROPS  = {};              // built by deriveCrops()
+
+/* ---------- built-in sample scene (used until a photo is dropped) ---------- */
+function sampleSceneURI(){
+  const W=4480,H=1280,hx=2470,hy=268,hr=64;
+  const s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f1117"/><stop offset=".45" stop-color="#1a1d25"/><stop offset=".72" stop-color="#2a2e38"/><stop offset="1" stop-color="#3b404c"/></linearGradient>
+      <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#e9ecf2"/><stop offset=".55" stop-color="#9aa1ae"/><stop offset="1" stop-color="#9aa1ae" stop-opacity="0"/></radialGradient>
+      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d212b"/><stop offset="1" stop-color="#0e1015"/></linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#161922"/><stop offset="1" stop-color="#0a0b0e"/></linearGradient>
+    </defs>
+    <rect width="${W}" height="${H}" fill="url(#sky)"/>
+    <circle cx="3120" cy="930" r="420" fill="url(#sun)"/><circle cx="3120" cy="930" r="150" fill="#dfe2e8"/>
+    <path d="M0 880 L380 700 L760 860 L1150 660 L1600 870 L2050 700 L2520 880 L3000 720 L3480 880 L3950 700 L4480 860 L4480 1280 L0 1280Z" fill="url(#g1)" opacity=".85"/>
+    <path d="M0 1020 L500 880 L980 1030 L1500 870 L2080 1040 L2700 890 L3300 1050 L3900 900 L4480 1030 L4480 1280 L0 1280Z" fill="url(#g2)"/>
+    <path d="M0 1280 L0 1010 Q500 950 900 1060 Q1300 1170 1700 1280 Z" fill="#07080b"/>
+    <circle cx="1750" cy="1130" r="90" fill="#6b7280" opacity=".15"/><circle cx="1900" cy="1180" r="120" fill="#6b7280" opacity=".1"/>
+    <ellipse cx="900" cy="320" rx="260" ry="38" fill="#fff" opacity=".07"/><ellipse cx="3700" cy="260" rx="320" ry="42" fill="#fff" opacity=".07"/>
+    <g fill="#0b0a12">
+      <circle cx="2330" cy="760" r="98" fill="none" stroke="#0b0a12" stroke-width="26"/>
+      <circle cx="2660" cy="660" r="98" fill="none" stroke="#0b0a12" stroke-width="26"/>
+      <path d="M2330 760 L2470 640 L2660 660 M2470 640 L2520 540 M2330 760 L2480 730 L2660 660" stroke="#0b0a12" stroke-width="22" fill="none" stroke-linecap="round"/>
+      <path d="M2520 540 L2596 520" stroke="#0b0a12" stroke-width="20" stroke-linecap="round"/>
+      <path d="M2470 640 L2430 520 L2480 420" stroke="#0b0a12" stroke-width="30" fill="none" stroke-linecap="round"/>
+      <path d="M2480 420 L2492 330" stroke="#0b0a12" stroke-width="42" stroke-linecap="round"/>
+      <path d="M2490 360 L2596 522" stroke="#0b0a12" stroke-width="26" stroke-linecap="round"/>
+      <circle cx="${hx}" cy="${hy}" r="${hr}"/>
+      <path d="M${hx-66} ${hy+6} a66 66 0 0 1 132 0 Z" fill="#4a5160"/>
+      <rect x="${hx-58}" y="${hy+2}" width="116" height="22" rx="11" fill="#c7ccd6" opacity=".9"/>
+    </g>
+    <path d="M2492 330 L2480 420" stroke="#9aa1ae" stroke-width="6" stroke-linecap="round" opacity=".8"/>
+  </svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.replace(/\n\s*/g,' '));
+}
+
+function loadMaster(src, name, focalDefault){
+  const img = new Image();
+  img.onload = () => {
+    master = {img, w: img.naturalWidth, h: img.naturalHeight, name};
+    focal = focalDefault || {x:.5, y:.33};
+    const info = document.getElementById('imgInfo');
+    info.style.display='block';
+    info.textContent = `✓ ${name} — ${master.w} × ${master.h} (${(master.w/master.h).toFixed(2)}:1)`;
+    deriveCrops();
+    render();
+  };
+  img.src = src;
+}
+
+/* ---------- rendition derivation (= the DAM) ---------- */
+function deriveCrops(){
+  const MR = master.w / master.h;
+  for (const k in RATIO_DEFS){
+    const def = RATIO_DEFS[k], r = def.ratio;
+    let x0, y0, w, h;
+    if (MR > r){            // master wider than rendition → cut WIDTH
+      h = master.h; w = h * r;
+      const cx = (state.derive==='focal' ? focal.x*master.w : master.w/2);
+      x0 = clamp(cx - w/2, 0, master.w - w); y0 = 0;
+    } else {                // master taller → cut HEIGHT (the dangerous one)
+      w = master.w; h = w / r;
+      const ty = (state.derive==='focal' ? focal.y*master.h - HEADROOM*h : (master.h - h)/2);
+      y0 = clamp(ty, 0, master.h - h); x0 = 0;
+    }
+    /* rasterize the rendition */
+    const outW = Math.min(Math.round(w), MAX_RENDITION_W);
+    const outH = Math.round(outW / r);
+    const cv = document.createElement('canvas');
+    cv.width = outW; cv.height = outH;
+    cv.getContext('2d').drawImage(master.img, x0, y0, w, h, 0, 0, outW, outH);
+    let src;
+    try { src = cv.toDataURL('image/jpeg', .85); }
+    catch(e){ src = master.img.src; }
+
+    /* focal + assumed head box, in THIS rendition's fractions */
+    const fx = (focal.x*master.w - x0) / w;
+    const fy = (focal.y*master.h - y0) / h;
+    const hr = HEAD_FRAC * master.h;
+    CROPS[k] = { ...def, src, win:{x0,y0,w,h}, fx: clamp(fx,0,1), fy: clamp(fy,0,1),
+      head: { hx0: clamp((focal.x*master.w - hr - x0)/w, 0, 1), hx1: clamp((focal.x*master.w + hr - x0)/w, 0, 1),
+              hy0: clamp((focal.y*master.h - hr - y0)/h, 0, 1), hy1: clamp((focal.y*master.h + hr - y0)/h, 0, 1) } };
+  }
+}
+
+/* ---------- sidebar ---------- */
+function buildButtons(boxId, items, get, set, html){
+  const box = document.getElementById(boxId);
+  items.forEach((it,i)=>{
+    const b=document.createElement('button');
+    b.innerHTML = html(it);
+    b.onclick = ()=>{ set(it,i); render(); };
+    box.appendChild(b);
+  });
+}
+buildButtons('derives', DERIVES, null, it=>{state.derive=it.k; deriveCrops();}, it=>`${it.n}<small>${it.d}</small>`);
+buildButtons('devices', DEVICES, null, (it,i)=>{state.dev=i; state.custom=false; vwEl.value=it.w; vhEl.value=it.h;}, it=>`${it.n}<small>${it.d}</small>`);
+buildButtons('crops', Object.keys(RATIO_DEFS).map(k=>({k})), null, it=>{state.crop=it.k;}, it=>RATIO_DEFS[it.k].label);
+buildButtons('focals', FOCALS, null, it=>{state.focal=it.k;}, it=>`${it.n}<small>${it.d}</small>`);
+buildButtons('strats', STRATS, null, it=>{state.strat=it.k;}, it=>`${it.n}<small>${it.d}</small>`);
+
+document.getElementById('togFocal').onclick = ()=>{state.showFocal=!state.showFocal; render();};
+document.getElementById('togFold').onclick = ()=>{state.showFold=!state.showFold; render();};
+
+const vwEl=document.getElementById('vw'), vhEl=document.getElementById('vh');
+vwEl.oninput = ()=>{state.custom=true; render();};
+vhEl.oninput = ()=>{state.custom=true; render();};
+
+/* ---------- drop zone ---------- */
+const drop = document.getElementById('drop'), fileEl = document.getElementById('file');
+drop.onclick = ()=>fileEl.click();
+fileEl.onchange = ()=>{ if(fileEl.files[0]) readFile(fileEl.files[0]); };
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f && f.type.startsWith('image/')) readFile(f); });
+function readFile(f){
+  const rd = new FileReader();
+  rd.onload = ()=>loadMaster(rd.result, f.name, {x:.5, y:.33});
+  rd.readAsDataURL(f);
+}
+
+/* ---------- inspector: click to set focal ---------- */
+document.getElementById('inspWrap').addEventListener('click', e=>{
+  if (!master) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const u = clamp((e.clientX-rect.left)/rect.width, 0, 1);
+  const v = clamp((e.clientY-rect.top)/rect.height, 0, 1);
+  const win = CROPS[state.crop].win;
+  focal = { x: (win.x0 + u*win.w)/master.w, y: (win.y0 + v*win.h)/master.h };
+  deriveCrops();
+  render();
+});
+
+/* ---------- helpers ---------- */
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function fmt(n){ return Math.round(n).toLocaleString('en-US'); }
+function ratioStr(r){ return r.toFixed(2)+':1'; }
+function overlapFrac(a0,a1,b0,b1){
+  const o = Math.max(0, Math.min(a1,b1)-Math.max(a0,b0));
+  return (a1-a0)<=0?0:o/(a1-a0);
+}
+function chip(parent,k,v,suffix='',cls=''){
+  const c=document.createElement('div'); c.className='chip '+cls;
+  c.innerHTML=`<div class="k">${k}</div><div class="v">${v}<small>${suffix}</small></div>`;
+  parent.appendChild(c);
+}
+
+/* ---------- main render ---------- */
+const cardsBox = document.getElementById('cards');
+function render(){
+  if (!master || !CROPS[state.crop]) return;
+  const vw = +vwEl.value, vh = +vhEl.value;
+  document.getElementById('vwv').textContent = vw;
+  document.getElementById('vhv').textContent = vh;
+  document.querySelectorAll('#derives button').forEach((b,i)=>b.classList.toggle('on', DERIVES[i].k===state.derive));
+  document.querySelectorAll('#devices button').forEach((b,i)=>b.classList.toggle('on', !state.custom && i===state.dev));
+  document.querySelectorAll('#crops button').forEach((b,i)=>b.classList.toggle('on', Object.keys(RATIO_DEFS)[i]===state.crop));
+  document.querySelectorAll('#focals button').forEach((b,i)=>b.classList.toggle('on', FOCALS[i].k===state.focal));
+  document.querySelectorAll('#strats button').forEach((b,i)=>b.classList.toggle('on', STRATS[i].k===state.strat));
+  document.getElementById('togFocal').classList.toggle('on', state.showFocal);
+  document.getElementById('togFold').classList.toggle('on', state.showFold);
+
+  const crop = CROPS[state.crop];
+  const focalMode = FOCALS.find(f=>f.k===state.focal);
+  document.getElementById('cropnote').textContent = crop.note;
+
+  /* rail metrics */
+  const cardW = Math.max(220, Math.min(vw/6.2, 460));
+  const cardH = cardW * 9/16;
+  const railBlock = RAIL_PAD_T + RAIL_TITLE + cardH + RAIL_PAD_B;
+  const peek = Math.round(railBlock * PEEK_FRACTION);
+
+  /* hero sizing */
+  const heroH = Math.max(MIN_HERO, vh - HEADER - peek);
+  const vpAR = vw/vh;
+  const ultra = vpAR >= 2;
+  const strat = ultra ? state.strat : 'bleed';
+
+  let stageW = vw, gutter = 0;
+  if (strat === 'ambient') stageW = Math.min(vw, Math.round(heroH * 21/9));
+  if (strat === 'maxw'){ stageW = Math.min(vw, 2560); gutter = Math.round((vw - stageW)/2); }
+  const stageAR = stageW/heroH;
+
+  /* simulated page */
+  const vp = document.getElementById('vp');
+  const pageH = HEADER + heroH + railBlock + 40;
+  const device = document.getElementById('device');
+  device.style.width = vw+'px';
+  vp.style.height = pageH+'px';
+
+  const hero = document.getElementById('hero');
+  hero.style.height = heroH+'px';
+  if (strat==='maxw'){ hero.style.marginLeft = hero.style.marginRight = gutter+'px'; hero.style.width = stageW+'px'; hero.style.borderRadius='14px'; }
+  else { hero.style.margin = 0; hero.style.width = '100%'; hero.style.borderRadius='0'; }
+
+  const heroStage = document.getElementById('heroStage');
+  heroStage.style.width = (strat==='ambient'? stageW+'px' : '100%');
+  const amb = document.getElementById('amb');
+  if (strat==='ambient' && stageW < vw){ amb.style.display='block'; document.getElementById('ambImg').src = crop.src; }
+  else amb.style.display='none';
+
+  const img = document.getElementById('heroImg');
+  img.src = crop.src;
+  const [px,py] = focalMode.pos(crop);
+  img.style.objectPosition = (px*100).toFixed(1)+'% '+(py*100).toFixed(1)+'%';
+
+  /* cover math */
+  const IR = crop.ratio, CR = stageAR;
+  let visX0=0, visX1=1, visY0=0, visY1=1;
+  if (CR > IR){ const f = IR/CR; visY0 = py*(1-f); visY1 = visY0+f; }
+  else if (CR < IR){ const f = CR/IR; visX0 = px*(1-f); visX1 = visX0+f; }
+  const lostV = Math.round((1-(visY1-visY0))*100);
+  const lostH = Math.round((1-(visX1-visX0))*100);
+
+  /* verdict: is the (assumed) head fully visible? */
+  const h = crop.head;
+  const headSafe = h.hy0>=visY0-0.005 && h.hy1<=visY1+0.005 && h.hx0>=visX0-0.005 && h.hx1<=visX1+0.005;
+  const headFrac = overlapFrac(h.hx0,h.hx1,visX0,visX1) * overlapFrac(h.hy0,h.hy1,visY0,visY1);
+  const verdict = headSafe ? ['ok','✓ Subject safe'] : headFrac>0.4 ? ['warn','◐ Head partially cropped'] : ['bad','✗ Head cropped off'];
+
+  /* focal marker in stage */
+  const mark = document.getElementById('focalMark');
+  mark.classList.toggle('hidden', !state.showFocal);
+  if (state.showFocal){
+    const mx = (crop.fx - visX0)/(visX1-visX0), my = (crop.fy - visY0)/(visY1-visY0);
+    mark.style.left = (mx*100)+'%'; mark.style.top = (my*100)+'%';
+    mark.style.opacity = (mx<0||mx>1||my<0||my>1) ? 0 : 1;
+  }
+
+  /* fold */
+  const foldEl = document.getElementById('foldline');
+  const below = document.getElementById('belowfold');
+  foldEl.style.display = state.showFold ? 'block':'none';
+  foldEl.style.top = vh+'px';
+  below.style.top = vh+'px'; below.style.height = (pageH-vh)+'px';
+  below.style.display = state.showFold ? 'block':'none';
+
+  /* cards */
+  cardsBox.innerHTML='';
+  const n = Math.ceil(vw/(cardW+14))+1;
+  for(let i=0;i<n;i++){ const c=document.createElement('div'); c.className='s-card';
+    c.style.width=cardW+'px'; c.style.height=cardH+'px'; cardsBox.appendChild(c); }
+  document.querySelector('.s-rail').style.padding = strat==='maxw' ? `22px ${gutter+48}px 30px` : '22px 48px 30px';
+
+  /* scale device */
+  const area = document.getElementById('stageArea');
+  const scale = Math.min((area.clientWidth-8)/vw, (area.clientHeight-8)/pageH, 1);
+  device.style.transform = `scale(${scale})`;
+  device.style.height = (pageH*scale)+'px';
+
+  const t = Math.max(.8, Math.min(vw/1512, 2.2));
+  document.querySelector('.s-title').style.fontSize = (44*t)+'px';
+  document.querySelector('.s-desc').style.fontSize = (15*t)+'px';
+  document.querySelector('.s-desc').style.maxWidth = (520*t)+'px';
+
+  /* readouts */
+  const dev = state.custom ? {n:'Custom'} : DEVICES[state.dev];
+  document.getElementById('devLabel').textContent = `${dev.n} — ${vw} × ${vh}`;
+  document.getElementById('scaleLabel').textContent = Math.round(scale*100)+'%';
+  document.getElementById('modeLabel').innerHTML = ultra
+    ? `<b style="color:var(--warn)">ULTRA-WIDE MODE</b> · strategy ${strat.toUpperCase()}`
+    : `<b style="color:var(--ok)">FULL BLEED</b> · viewport &lt; 2:1`;
+
+  const R = document.getElementById('readouts');
+  R.innerHTML = '';
+  chip(R,'Viewport ratio', ratioStr(vpAR), '', ultra?'warn':'ok');
+  chip(R,'Hero size', `${fmt(stageW)} × ${fmt(heroH)}`, strat==='ambient'&&stageW<vw?` + ambient ${fmt(vw-stageW)}px`:'' );
+  chip(R,'Hero container', ratioStr(stageAR));
+  chip(R,'Image crop', state.crop, ` (${ratioStr(IR)})`);
+  chip(R,'Image lost', (CR>IR? lostV+'%' : lostH+'%'), CR>IR?' of height':' of width', (CR>IR?lostV:lostH)>30?'bad':(CR>IR?lostV:lostH)>18?'warn':'ok');
+  chip(R,'Rail peek', fmt(peek)+'px', ' (75% of rail)');
+  chip(R,'Verdict', verdict[1],'',verdict[0]);
+
+  /* inspector */
+  const insp = document.getElementById('inspImg');
+  insp.src = crop.src;
+  const wrap = document.getElementById('inspWrap');
+  requestAnimationFrame(()=>{
+    const iw = wrap.clientWidth, ih = iw/IR;
+    wrap.style.height = ih+'px';
+    const winEl = document.getElementById('inspWin');
+    winEl.style.left=(visX0*iw)+'px'; winEl.style.top=(visY0*ih)+'px';
+    winEl.style.width=((visX1-visX0)*iw)+'px'; winEl.style.height=((visY1-visY0)*ih)+'px';
+    const fEl = document.getElementById('inspFocal');
+    fEl.style.left=(crop.fx*iw)+'px'; fEl.style.top=(crop.fy*ih)+'px';
+  });
+  document.getElementById('inspNote').textContent =
+    CR>IR ? `Container is wider than the image — ${lostV}% of image height is cropped. object-position-y decides WHICH ${100-lostV}% survives. Click anywhere to move the focal point.`
+    : CR<IR ? `Container is narrower than the image — ${lostH}% of image width is cropped at the sides. Click anywhere to move the focal point.`
+    : 'Perfect ratio match — nothing cropped. Click anywhere to move the focal point.';
+
+  /* css panel */
+  document.getElementById('cssOut').innerHTML =
+`<span class="cm">/* hero height: viewport minus header minus 75% rail peek */</span>
+.hero {
+  height: <span class="hl">max(${MIN_HERO}px, calc(100svh - ${HEADER}px - var(--rail-peek)))</span>;
+}
+.hero img {
+  object-fit: cover;
+  object-position: <span class="hl">${(px*100).toFixed(0)}% ${(py*100).toFixed(0)}%</span>;  <span class="cm">/* ${focalMode.k==='focal'?'from backend focal metadata':focalMode.k==='smart'?'static top-bias default':'no metadata (today)'} */</span>
+}
+<span class="cm">/* ultra-wide switch — aspect ratio, NOT pixel width.
+   16″ MacBook (1728×1117 → 1.55:1) never matches; 21:9 & 32:9 do. */</span>
+@media (min-aspect-ratio: 2/1) {   <span class="cm">/* ${ultra?'★ ACTIVE on this viewport':'inactive on this viewport'} */</span>
+${strat==='ambient'||!ultra?
+`  .hero .stage { max-width: <span class="hl">calc(var(--hero-h) * 21 / 9)</span>; margin-inline: auto; }
+  .hero .ambient { <span class="cm">/* blurred copy of same image behind the stage */</span>
+    filter: blur(60px) brightness(.45); transform: scale(1.15);
+  }`
+: strat==='maxw' ?
+`  .hero, .rail { max-width: <span class="hl">2560px</span>; margin-inline: auto; }`
+:`  <span class="cm">/* strategy A: no rule — image keeps covering, crop grows */</span>`}
+}`;
+}
+
+window.addEventListener('resize', render);
+loadMaster(sampleSceneURI(), 'Sample scene (drop your photo above)', {x:2470/4480, y:268/1280});
+</script>
+</body>
+</html>
