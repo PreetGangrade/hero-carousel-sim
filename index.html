@@ -12,8 +12,9 @@
     --radius:10px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
-  .app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--txt);font:14px/1.45 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow:hidden}
+  .app{display:grid;grid-template-columns:300px 1fr;height:100vh}
   /* ---------- Sidebar ---------- */
   aside{background:var(--panel);border-right:1px solid var(--line);padding:18px 16px;overflow-y:auto}
   aside h1{font-size:15px;font-weight:700;letter-spacing:.2px;margin-bottom:2px}
@@ -36,7 +37,7 @@
   #drop b{color:var(--txt)}
   #imgInfo{font-size:11px;color:var(--ok);margin-top:6px;display:none}
   /* ---------- Main ---------- */
-  main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+  main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;height:100vh;overflow:hidden}
   .readouts{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px;min-width:118px}
   .chip .k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
@@ -44,45 +45,120 @@
   .chip .v small{font-size:11px;font-weight:400;color:var(--dim)}
   .chip.ok .v{color:var(--ok)} .chip.warn .v{color:var(--warn)} .chip.bad .v{color:var(--bad)}
   /* ---------- Stage ---------- */
-  .stagewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;min-height:420px}
+  .stagewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;min-height:0}
   .stagehead{display:flex;justify-content:space-between;align-items:baseline;color:var(--dim);font-size:11.5px}
   .stagehead b{color:var(--txt)}
-  #stageArea{flex:1;position:relative;overflow:hidden;display:flex;align-items:flex-start;justify-content:center}
+  #stageArea{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
   #device{position:relative;background:#000;border-radius:6px;outline:2px solid #2c3340;box-shadow:0 18px 50px rgba(0,0,0,.5);transform-origin:top center;overflow:visible}
-  #vp{position:relative;width:100%;background:#0a0c10;overflow:visible;font-family:inherit}
+  /* ============ SIMULATED PAGE — tokens from Figma (Cosmos) ============
+     --t  : hero scale (1440px reference frame, node 722:33939)
+     --tr : rail scale (16:9 Standard lg, node 743:16377, 1920px reference)
+     --m  : viewport/margins token = 56px
+  */
+  #vp{position:relative;width:100%;background:#0a0c10;overflow:visible;
+      --t:1; --tr:var(--t); --m:56px;
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI","Noto Sans",Roboto,Helvetica,Arial,sans-serif}
   #foldline{position:absolute;left:0;right:0;border-top:2px dashed rgba(214,218,226,.75);z-index:30;pointer-events:none}
   #foldline span{position:absolute;right:8px;top:4px;background:rgba(222,226,233,.92);color:#15171c;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px}
   #belowfold{position:absolute;left:0;right:0;background:repeating-linear-gradient(45deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 10px,transparent 10px,transparent 20px);pointer-events:none;z-index:29}
-  .s-header{height:64px;display:flex;align-items:center;gap:28px;padding:0 48px;background:linear-gradient(#000c,#0000);position:relative;z-index:20}
-  .s-logo{width:120px;height:26px;border-radius:4px;background:linear-gradient(90deg,#3c414d,#23262e)}
-  .s-nav{display:flex;gap:22px}
-  .s-nav i{display:block;width:64px;height:12px;border-radius:6px;background:#ffffff2e}
+  /* ---- web nav (Figma: 744:16571) — floats OVER the hero ---- */
+  .s-nav{position:absolute;top:0;left:0;right:0;z-index:20;height:calc(136px*var(--t));
+    background:linear-gradient(180deg,rgba(18,18,18,.8) 0%,rgba(18,18,18,.35) 45%,rgba(18,18,18,0) 100%)}
+  .s-navbar{display:flex;align-items:center;justify-content:space-between;padding:calc(24px*var(--t)) calc(64px*var(--t))}
+  .s-navleft{display:flex;gap:calc(8px*var(--t));align-items:center}
+  .s-wordmark{width:calc(74px*var(--t));font-size:calc(22px*var(--t));font-weight:800;font-style:italic;letter-spacing:-.5px;color:#fff}
+  /* Tabs platter: glass/dark/40%, 1px light-40 border, r 30, h 40 */
+  .s-tabs{height:calc(40px*var(--t));background:rgba(26,26,26,.4);border:1px solid rgba(255,255,255,.4);border-radius:30px;backdrop-filter:blur(10px);display:flex;align-items:center}
+  /* tab: h 36, px = spacing/32 16, Body 3 15/18 medium */
+  .s-tab{height:calc(36px*var(--t));padding:0 calc(16px*var(--t));display:flex;align-items:center;border-radius:9999px;color:#fff;font-size:calc(15px*var(--t));line-height:calc(18px*var(--t));font-weight:500;white-space:nowrap}
+  .s-tab.on{background:rgba(255,255,255,.9);color:#000f1e;backdrop-filter:blur(50px)}
+  .s-navright{display:flex;gap:calc(11px*var(--t));align-items:center}
+  /* cosmos-button: brand #8133ce, h 36, r full, x-small 14/20 medium */
+  .s-getapp{height:calc(36px*var(--t));padding:0 calc(16px*var(--t));border-radius:9999px;background:#8133ce;color:#fff;font-size:calc(14px*var(--t));line-height:calc(20px*var(--t));font-weight:500;display:inline-flex;align-items:center;white-space:nowrap}
+  /* 36px glass/dark/20% circle buttons */
+  .s-navbtn{width:calc(36px*var(--t));height:calc(36px*var(--t));border-radius:999px;background:rgba(26,26,26,.2);backdrop-filter:blur(10px);display:inline-flex;align-items:center;justify-content:center;color:#fff}
+  .s-navbtn svg{width:calc(22px*var(--t));height:calc(22px*var(--t))}
   .s-hero{position:relative;width:100%;overflow:hidden;background:#000}
-  .s-hero .amb{position:absolute;inset:0;overflow:hidden}
-  .s-hero .amb img{width:100%;height:100%;object-fit:cover;filter:blur(60px) brightness(.4) saturate(.85);transform:scale(1.15)}
-  .s-hero .stage{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);overflow:hidden}
-  .s-hero .stage img{width:100%;height:100%;object-fit:cover;display:block}
-  .s-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,7,10,.78) 0%,rgba(5,7,10,.25) 38%,transparent 60%),linear-gradient(0deg,rgba(10,12,16,.95) 0%,transparent 32%);pointer-events:none}
-  .s-meta{position:absolute;left:48px;bottom:9%;z-index:5;max-width:46%}
-  .s-tag{display:inline-block;background:#ffffff1c;border:1px solid #ffffff33;color:#e6e8ed;font-size:11px;font-weight:800;letter-spacing:1.5px;padding:4px 10px;border-radius:3px;margin-bottom:14px;backdrop-filter:blur(4px)}
-  .s-title{font-size:44px;line-height:1.04;font-weight:800;letter-spacing:-.5px;text-shadow:0 2px 18px rgba(0,0,0,.6)}
-  .s-desc{margin-top:12px;color:#cfd5e2;font-size:15px;max-width:520px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
-  .s-ctas{margin-top:18px;display:flex;gap:12px}
-  .s-play{background:#fff;color:#000;font-weight:700;font-size:14px;padding:11px 26px;border-radius:6px}
-  .s-more{background:#ffffff26;color:#fff;font-weight:600;font-size:14px;padding:11px 22px;border-radius:6px;backdrop-filter:blur(4px)}
-  .s-dots{position:absolute;right:48px;bottom:9%;display:flex;gap:7px;z-index:5}
-  .s-dots i{width:7px;height:7px;border-radius:50%;background:#ffffff45}
-  .s-dots i:first-child{background:#fff;width:22px;border-radius:4px}
-  .s-rail{padding:22px 48px 30px;position:relative;z-index:6}
-  .s-rail h3{font-size:19px;font-weight:700;margin-bottom:13px}
-  .s-cards{display:flex;gap:14px;overflow:hidden}
-  .s-card{flex:0 0 auto;border-radius:8px;background:linear-gradient(135deg,#222a38,#161b25);position:relative;overflow:hidden}
-  .s-card:after{content:"";position:absolute;left:10px;bottom:10px;width:55%;height:9px;border-radius:5px;background:#ffffff2b}
+  .s-hero .stage{position:absolute;inset:0;overflow:hidden}
+  .s-hero .stage img{width:100%;height:100%;object-fit:cover;display:block;transition:object-position .35s ease}
+  .s-scrim{position:absolute;inset:0;background:linear-gradient(90deg,rgba(5,7,10,.72) 0%,rgba(5,7,10,.22) 40%,transparent 62%),linear-gradient(0deg,rgba(10,12,16,.92) 0%,transparent 34%);pointer-events:none}
+
+  /* ---- Content Info (Figma: I722:33939;21402:59423 · px = viewport/margins 56) ---- */
+  .s-content{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column;padding:0 var(--m)}
+  /* CarouselInfo: w 600, gap = spacing/32 (16px) */
+  .s-info{display:flex;flex-direction:column;gap:calc(16px*var(--t));width:calc(600px*var(--t));max-width:70%}
+  /* H3: display bold, font-size/3xl 36, line-height/h3 40, text/primary */
+  .s-title{font-size:calc(36px*var(--t));line-height:calc(40px*var(--t));font-weight:700;color:#fff;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  /* Info column: gap = spacing/24 (12px) */
+  .s-infocol{display:flex;flex-direction:column;gap:calc(12px*var(--t))}
+  /* Badges + metadata row: gap = spacing/20 (6px 10px) */
+  .s-badges{display:flex;flex-wrap:wrap;gap:calc(6px*var(--t)) calc(10px*var(--t));align-items:center}
+  /* Rating: solid/dark/1 #4e4e4e, blur 10, r = corner-radius/sm 4, px = badge-horizontal-padding 8, 3xs 13 bold, lh label 20 */
+  .b-rating{background:#4e4e4e;backdrop-filter:blur(10px);border-radius:4px;padding:0 calc(8px*var(--t));
+    min-width:calc(28px*var(--t));text-align:center;font-size:calc(13px*var(--t));line-height:calc(20px*var(--t));font-weight:700;color:#fff}
+  /* NEW: accent/focus #8133ce, r 4, px 8, 2xs 14 medium, lh label 20 */
+  .b-new{background:#8133ce;border-radius:4px;padding:0 calc(8px*var(--t));font-size:calc(14px*var(--t));line-height:calc(20px*var(--t));font-weight:500;color:#fff}
+  /* Metadata: 2xs 14 medium, text/secondary #aaa, gap = spacing/12 (6px) */
+  .s-mdata{display:flex;gap:calc(6px*var(--t));color:#aaa;font-size:calc(14px*var(--t));line-height:calc(20px*var(--t));font-weight:500;white-space:nowrap}
+  /* Body 2: sm 16 regular, lh body-2 20, text/secondary, 3-line clamp, w 600 */
+  .s-desc{font-size:calc(16px*var(--t));line-height:calc(20px*var(--t));font-weight:400;color:#aaa;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .s-more{color:#fff;font-weight:500;backdrop-filter:blur(10px)}
+  /* Buttons: gap = spacing/24 (12px) */
+  .s-ctas{display:flex;gap:calc(12px*var(--t));align-items:center}
+  /* Primary: h 42, solid/light/2 #f8f8f8, r 200, pl 16 pr 24 py 10, gap 6, icon 22, label sm 16 medium lh button 22, text/tertiary #000f1e */
+  .s-play{height:calc(42px*var(--t));background:#f8f8f8;color:#000f1e;border-radius:200px;
+    padding:0 calc(24px*var(--t)) 0 calc(16px*var(--t));display:inline-flex;align-items:center;gap:calc(6px*var(--t));
+    font-size:calc(16px*var(--t));line-height:calc(22px*var(--t));font-weight:500}
+  .s-play svg{width:calc(22px*var(--t));height:calc(22px*var(--t));flex:0 0 auto}
+  /* Secondary: 42×42, glass/light/10%, r full */
+  .s-iconbtn{width:calc(42px*var(--t));height:calc(42px*var(--t));border-radius:999px;background:rgba(255,255,255,.1);
+    display:inline-flex;align-items:center;justify-content:center;color:#fff}
+  .s-iconbtn svg{width:calc(22px*var(--t));height:calc(22px*var(--t))}
+  /* Carousel indicators: h 56, py = spacing/32 (16), centered platter glass/light/10% r 200 px = platter-padding-h 8 */
+  .s-indic{height:calc(56px*var(--t));display:flex;align-items:center;justify-content:center;padding:calc(16px*var(--t)) 0;width:100%}
+  .s-platter{background:rgba(255,255,255,.1);border-radius:200px;padding:0 calc(8px*var(--t));display:flex;align-items:center}
+  /* dot cell: px = dot-padding-h 4, py = dot-padding-v 8 */
+  .s-dot{padding:calc(8px*var(--t)) calc(4px*var(--t));display:flex}
+  .s-dot i{display:block;width:calc(8px*var(--t));height:calc(8px*var(--t));border-radius:5px;background:rgba(255,255,255,.2)}
+  .s-dot.on i{width:calc(24px*var(--t));background:rgba(255,255,255,.4);position:relative;overflow:hidden}
+  .s-dot.on i b{position:absolute;inset:0 68.75% 0 0;border-radius:800px;background:#fff;backdrop-filter:blur(50px)}
+
+  /* ---- Rail (Figma: 743:16377 at true 1440 scale, from frame 744:16739) ---- */
+  /* container: pl 56 (viewport/margins), pr 0 — the card strip bleeds off the right
+     edge of the viewport so the trailing card peeks instead of clipping at a gutter */
+  .s-rail{padding:calc(18px*var(--tr)) 0 calc(40px*var(--tr)) var(--m);position:relative;z-index:6}
+  /* H5: display bold, xl 21, lh h5 26, text/secondary #aaa */
+  .s-rail h3{font-size:calc(21px*var(--tr));line-height:calc(26px*var(--tr));font-weight:700;color:#aaa;margin-bottom:calc(12px*var(--tr))}
+  /* gap-between-cards token = 12 */
+  .s-cards{display:flex;gap:calc(12px*var(--tr));overflow:hidden}
+  /* card column: gap 12 between thumb and info */
+  .s-card{flex:0 0 auto;display:flex;flex-direction:column;gap:calc(12px*var(--tr))}
+  /* thumb: 317×178 (16:9), r = corner-radius/lg 8 — neutral placeholder, NOT the dropped hero image */
+  .s-thumb{width:100%;aspect-ratio:16/9;border-radius:calc(8px*var(--tr));overflow:hidden;position:relative;background:linear-gradient(135deg,#3a3f49,#23262e)}
+  /* duration: solid/dark/1 #404852, blur 10, r sm 4, px 8, 2xs 14 medium lh label 20 — inset = progress-bar-height 6 */
+  .s-dur{position:absolute;left:calc(6px*var(--tr));bottom:calc(6px*var(--tr));background:#404852;backdrop-filter:blur(10px);
+    border-radius:calc(4px*var(--tr));padding:0 calc(8px*var(--tr));font-size:calc(14px*var(--tr));line-height:calc(20px*var(--tr));font-weight:500;color:#fff}
+  /* card info: gap-between-text 0 */
+  .s-cinfo{display:flex;flex-direction:column;gap:0}
+  .s-ctitlerow{display:flex;gap:calc(6px*var(--tr));align-items:center;width:100%}
+  /* Title: lg 18 medium, lh title 21, white, 1 line + 24px more-actions */
+  .s-ctitle{flex:1;min-width:0;font-size:calc(18px*var(--tr));line-height:calc(21px*var(--tr));font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .s-more3{width:calc(24px*var(--tr));height:calc(24px*var(--tr));color:#aaa;flex:0 0 auto}
+  /* Subheading row: gap = spacing/16 (8) */
+  .s-csub{display:flex;gap:calc(8px*var(--tr));align-items:center;min-width:0}
+  /* inline rating: solid/dark/0 rgba(64,72,82,.6), blur 10, r sm 4, px 8, 3xs 13 bold lh 20, min-w 28 */
+  .b-crating{background:rgba(64,72,82,.6);backdrop-filter:blur(10px);border-radius:calc(4px*var(--tr));padding:0 calc(8px*var(--tr));
+    min-width:calc(28px*var(--tr));text-align:center;font-size:calc(13px*var(--tr));line-height:calc(20px*var(--tr));font-weight:700;color:#fff}
+  /* subheading: sm 16 regular, lh body-2 20, text/secondary */
+  .s-csub>span:last-child{font-size:calc(16px*var(--tr));line-height:calc(20px*var(--tr));font-weight:400;color:#aaa;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .focal-marker{position:absolute;z-index:8;width:18px;height:18px;margin:-9px 0 0 -9px;border:2.5px solid #f2f4f8;border-radius:50%;box-shadow:0 0 10px #000000b0, inset 0 0 6px #ffffff55;pointer-events:none}
   .focal-marker.hidden{display:none}
   /* ---------- bottom panels ---------- */
-  .bottom{display:grid;grid-template-columns:300px 1fr;gap:14px}
-  .panelbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+  .bottom{display:grid;grid-template-columns:300px 1fr;gap:14px;flex:0 0 auto;max-height:280px;min-height:0}
+  .panelbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto;min-height:0}
   .panelbox h4{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
   #inspWrap{position:relative;overflow:hidden;border-radius:6px;line-height:0;cursor:crosshair}
   #inspImg{width:100%;display:block;border-radius:6px}
@@ -93,7 +169,14 @@
   pre{background:#0e0f13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:11.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:#b6bcc8;overflow-x:auto;white-space:pre}
   pre .hl{color:#f0f2f6;font-weight:600}
   pre .cm{color:#5c616d}
-  @media (max-width:1100px){ .app{grid-template-columns:1fr} aside{border-right:none;border-bottom:1px solid var(--line)} .bottom{grid-template-columns:1fr} }
+  @media (max-width:1100px){
+    body{overflow:auto}
+    .app{grid-template-columns:1fr;height:auto}
+    main{height:auto;overflow:visible}
+    aside{border-right:none;border-bottom:1px solid var(--line)}
+    .bottom{grid-template-columns:1fr;max-height:none}
+    #stageArea{min-height:420px}
+  }
 </style>
 </head>
 <body>
@@ -145,7 +228,7 @@
     <label>Overlays</label>
     <div class="btns" id="overlays">
       <button id="togFocal" class="on">Focal marker</button>
-      <button id="togFold" class="on">Fold line</button>
+      <button id="togFold" class="on">Clip at fold</button>
     </div>
   </div>
 </aside>
@@ -161,24 +244,55 @@
     <div id="stageArea">
       <div id="device">
         <div id="vp">
-          <div class="s-header"><div class="s-logo"></div><div class="s-nav"><i></i><i></i><i></i><i></i></div></div>
+          <div class="s-nav">
+            <div class="s-navbar">
+              <div class="s-navleft">
+                <span class="s-wordmark">Logo</span>
+                <span class="s-tabs">
+                  <span class="s-tab on">Home</span><span class="s-tab">Title</span><span class="s-tab">Title</span>
+                  <span class="s-tab">Title</span><span class="s-tab">Title</span><span class="s-tab">Title</span>
+                </span>
+              </div>
+              <div class="s-navright">
+                <span class="s-getapp">Get the App</span>
+                <span class="s-navbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.6 15.6 4 4" stroke-linecap="round"/></svg></span>
+                <span class="s-navbtn"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.8 19.6a7.2 7.2 0 0 1 14.4 0Z"/></svg></span>
+              </div>
+            </div>
+          </div>
           <div class="s-hero" id="hero">
-            <div class="amb" id="amb" style="display:none"><img id="ambImg" alt=""></div>
             <div class="stage" id="heroStage">
               <img id="heroImg" alt="">
               <div class="focal-marker" id="focalMark"></div>
             </div>
             <div class="s-scrim"></div>
-            <div class="s-meta">
-              <span class="s-tag">LIVE · MTB</span>
-              <div class="s-title">Red Bull Rampage<br>Finals 2026</div>
-              <div class="s-desc">The world’s best freeriders drop into Virgin, Utah for the most consequential lines of the season.</div>
-              <div class="s-ctas"><span class="s-play">▶&nbsp; Watch now</span><span class="s-more">＋ Watchlist</span></div>
+            <div class="s-content">
+              <div class="s-info">
+                <div class="s-title">Red Bull Rampage: Finals 2026</div>
+                <div class="s-infocol">
+                  <div class="s-badges">
+                    <span class="b-rating">TV-G</span>
+                    <span class="b-new">NEW</span>
+                    <span class="s-mdata"><span>2 seasons</span><span>·</span><span>2023</span></span>
+                  </div>
+                  <div class="s-desc">The world’s best freeriders drop into Virgin, Utah for the most consequential lines of the season. Three lines maximum — more than three lines truncates into an ellipsis with a trailing action. <span class="s-more">MORE</span></div>
+                </div>
+                <div class="s-ctas">
+                  <span class="s-play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.14v13.72c0 .79.87 1.27 1.54.84l10.4-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z"/></svg>Watch</span>
+                  <span class="s-iconbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor" stroke="none"/></svg></span>
+                </div>
+              </div>
+              <div class="s-indic">
+                <div class="s-platter">
+                  <span class="s-dot on"><i><b></b></i></span>
+                  <span class="s-dot"><i></i></span><span class="s-dot"><i></i></span><span class="s-dot"><i></i></span>
+                  <span class="s-dot"><i></i></span><span class="s-dot"><i></i></span><span class="s-dot"><i></i></span><span class="s-dot"><i></i></span>
+                </div>
+              </div>
             </div>
-            <div class="s-dots"><i></i><i></i><i></i><i></i><i></i></div>
           </div>
           <div class="s-rail">
-            <h3>Continue Watching</h3>
+            <h3>Rail title</h3>
             <div class="s-cards" id="cards"></div>
           </div>
         </div>
@@ -258,19 +372,31 @@ const FOCALS = [
 ];
 
 const STRATS = [
-  {k:'bleed', n:'A · Crop through (full bleed)', d:'Keep covering — image absorbs all the extra width'},
-  {k:'ambient', n:'B · Ambient fill (recommended)', d:'Cap the image at 21:9, fill the rest with a blurred self-extension'},
-  {k:'maxw', n:'C · Hard max-width + padding', d:'Cap whole hero at 2560px, side gutters appear'},
+  {k:'bleed', n:'A · Full bleed (crop + focal)', d:'Image keeps covering — the focal point steers what survives'},
+  {k:'maxw', n:'B · Hard max-width + gutters', d:'Hero, nav and rails cap at 2560px, centered'},
 ];
 
-const HEADER = 64, RAIL_TITLE = 32, RAIL_PAD_T = 22, RAIL_PAD_B = 30;
+/* Figma tokens (Cosmos) — true values at the 1440 reference frame (744:16739) */
 const PEEK_FRACTION = .75, MIN_HERO = 400;
+const TOK = {
+  margins: 56,            // viewport/margins
+  railPT: 18,             // spacing/36
+  railPB: 40,             // spacing/72
+  railTitleLH: 26,        // line-height/h5
+  railGap: 12,            // gap title→cards
+  cardW: 317,             // card/lg-width @1440
+  cardGap: 12,            // card/gap-between-cards
+  cardInfoGap: 12,        // thumb→info gap
+  cardTextGap: 0,         // card/gap-between-text
+  cardTitleLH: 21,        // line-height/title
+  cardSubLH: 20,          // line-height/body-2
+};
 const HEADROOM = .30;          // focal-aware derivation: focal sits 30% from window top
 const HEAD_FRAC = .055;        // assumed head radius ≈ 5.5% of master height around focal
 const MAX_RENDITION_W = 2200;  // cap derived rendition width (perf only)
 
-const state = { dev:2, crop:'21:9', focal:'focal', strat:'ambient', derive:'focal',
-                showFocal:true, showFold:true, custom:false };
+const state = { dev:2, crop:'21:9', focal:'focal', strat:'bleed', derive:'focal',
+                showFocal:true, clipFold:true, custom:false };
 
 let master = null;            // {img, w, h, name}
 let focal  = {x:.55, y:.21};  // fractions of MASTER
@@ -376,7 +502,7 @@ buildButtons('focals', FOCALS, null, it=>{state.focal=it.k;}, it=>`${it.n}<small
 buildButtons('strats', STRATS, null, it=>{state.strat=it.k;}, it=>`${it.n}<small>${it.d}</small>`);
 
 document.getElementById('togFocal').onclick = ()=>{state.showFocal=!state.showFocal; render();};
-document.getElementById('togFold').onclick = ()=>{state.showFold=!state.showFold; render();};
+document.getElementById('togFold').onclick = ()=>{state.clipFold=!state.clipFold; render();};
 
 const vwEl=document.getElementById('vw'), vhEl=document.getElementById('vh');
 vwEl.oninput = ()=>{state.custom=true; render();};
@@ -434,46 +560,48 @@ function render(){
   document.querySelectorAll('#focals button').forEach((b,i)=>b.classList.toggle('on', FOCALS[i].k===state.focal));
   document.querySelectorAll('#strats button').forEach((b,i)=>b.classList.toggle('on', STRATS[i].k===state.strat));
   document.getElementById('togFocal').classList.toggle('on', state.showFocal);
-  document.getElementById('togFold').classList.toggle('on', state.showFold);
+  document.getElementById('togFold').classList.toggle('on', state.clipFold);
 
   const crop = CROPS[state.crop];
   const focalMode = FOCALS.find(f=>f.k===state.focal);
   document.getElementById('cropnote').textContent = crop.note;
 
-  /* rail metrics */
-  const cardW = Math.max(220, Math.min(vw/6.2, 460));
-  const cardH = cardW * 9/16;
-  const railBlock = RAIL_PAD_T + RAIL_TITLE + cardH + RAIL_PAD_B;
-  const peek = Math.round(railBlock * PEEK_FRACTION);
+  /* type/component scale: everything designed at the 1440 reference frame */
+  const t = Math.max(.85, Math.min(vw/1440, 1.5));
+  const tr = t;
 
-  /* hero sizing */
-  const heroH = Math.max(MIN_HERO, vh - HEADER - peek);
+  /* rail metrics — straight from Figma frame 744:16739 */
+  const cardW = TOK.cardW * tr;
+  const thumbH = cardW * 9/16;
+  const railVisible = tr*(TOK.railPT + TOK.railTitleLH + TOK.railGap + TOK.cardInfoGap + TOK.cardTitleLH + TOK.cardTextGap + TOK.cardSubLH) + thumbH;
+  const railBlock = railVisible + tr*TOK.railPB;
+  const peek = Math.round(railVisible * PEEK_FRACTION);
+
+  /* hero sizing — nav floats OVER the hero (Figma frame), so no header offset */
+  const heroH = Math.max(MIN_HERO, vh - peek);
   const vpAR = vw/vh;
   const ultra = vpAR >= 2;
   const strat = ultra ? state.strat : 'bleed';
 
   let stageW = vw, gutter = 0;
-  if (strat === 'ambient') stageW = Math.min(vw, Math.round(heroH * 21/9));
   if (strat === 'maxw'){ stageW = Math.min(vw, 2560); gutter = Math.round((vw - stageW)/2); }
   const stageAR = stageW/heroH;
 
   /* simulated page */
   const vp = document.getElementById('vp');
-  const pageH = HEADER + heroH + railBlock + 40;
+  vp.style.setProperty('--t', t);
+  const pageH = heroH + railBlock;
+  const clip = state.clipFold;
+  const visH = clip ? Math.min(vh, pageH) : pageH;   /* fold = bottom edge of the viewport */
   const device = document.getElementById('device');
   device.style.width = vw+'px';
-  vp.style.height = pageH+'px';
+  vp.style.height = visH+'px';                        /* clip the PAGE, not the scaled box */
+  vp.style.overflow = clip ? 'hidden' : 'visible';
 
   const hero = document.getElementById('hero');
   hero.style.height = heroH+'px';
   if (strat==='maxw'){ hero.style.marginLeft = hero.style.marginRight = gutter+'px'; hero.style.width = stageW+'px'; hero.style.borderRadius='14px'; }
   else { hero.style.margin = 0; hero.style.width = '100%'; hero.style.borderRadius='0'; }
-
-  const heroStage = document.getElementById('heroStage');
-  heroStage.style.width = (strat==='ambient'? stageW+'px' : '100%');
-  const amb = document.getElementById('amb');
-  if (strat==='ambient' && stageW < vw){ amb.style.display='block'; document.getElementById('ambImg').src = crop.src; }
-  else amb.style.display='none';
 
   const img = document.getElementById('heroImg');
   img.src = crop.src;
@@ -503,31 +631,41 @@ function render(){
     mark.style.opacity = (mx<0||mx>1||my<0||my>1) ? 0 : 1;
   }
 
-  /* fold */
+  /* fold overlays — only shown in the unclipped (x-ray) view */
   const foldEl = document.getElementById('foldline');
   const below = document.getElementById('belowfold');
-  foldEl.style.display = state.showFold ? 'block':'none';
+  foldEl.style.display = clip ? 'none':'block';
   foldEl.style.top = vh+'px';
-  below.style.top = vh+'px'; below.style.height = (pageH-vh)+'px';
-  below.style.display = state.showFold ? 'block':'none';
+  below.style.top = vh+'px'; below.style.height = Math.max(0, pageH-vh)+'px';
+  below.style.display = clip ? 'none':'block';
 
-  /* cards */
+  /* cards — Figma “16:9 Standard”: neutral placeholder thumbs (dropped image affects the hero ONLY) */
   cardsBox.innerHTML='';
-  const n = Math.ceil(vw/(cardW+14))+1;
-  for(let i=0;i<n;i++){ const c=document.createElement('div'); c.className='s-card';
-    c.style.width=cardW+'px'; c.style.height=cardH+'px'; cardsBox.appendChild(c); }
-  document.querySelector('.s-rail').style.padding = strat==='maxw' ? `22px ${gutter+48}px 30px` : '22px 48px 30px';
+  const n = Math.ceil(vw/(cardW + TOK.cardGap*tr))+1;
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div'); c.className='s-card'; c.style.width=cardW+'px';
+    c.innerHTML = `<div class="s-thumb"><span class="s-dur">17 min</span></div>
+      <div class="s-cinfo"><div class="s-ctitlerow"><div class="s-ctitle">Title of episode, clip, or film</div>
+      <svg class="s-more3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></svg></div>
+      <div class="s-csub"><span class="b-crating">TV-G</span><span>Subheading of episode, clip, or film</span></div></div>`;
+    cardsBox.appendChild(c);
+  }
+  const railEl = document.querySelector('.s-rail');
+  const navbarEl = document.querySelector('.s-navbar');
+  if (strat==='maxw'){
+    railEl.style.paddingLeft = (gutter + TOK.margins)+'px';
+    railEl.style.paddingRight = gutter+'px';   /* cards clip at the content column edge */
+    navbarEl.style.paddingLeft = navbarEl.style.paddingRight = (gutter + 64*t)+'px';  /* nav follows the max-width */
+  } else {
+    railEl.style.paddingLeft = ''; railEl.style.paddingRight = '';
+    navbarEl.style.paddingLeft = navbarEl.style.paddingRight = '';
+  }
 
   /* scale device */
   const area = document.getElementById('stageArea');
-  const scale = Math.min((area.clientWidth-8)/vw, (area.clientHeight-8)/pageH, 1);
+  const scale = Math.min((area.clientWidth-8)/vw, (area.clientHeight-8)/visH, 1);
   device.style.transform = `scale(${scale})`;
-  device.style.height = (pageH*scale)+'px';
-
-  const t = Math.max(.8, Math.min(vw/1512, 2.2));
-  document.querySelector('.s-title').style.fontSize = (44*t)+'px';
-  document.querySelector('.s-desc').style.fontSize = (15*t)+'px';
-  document.querySelector('.s-desc').style.maxWidth = (520*t)+'px';
+  device.style.height = (visH*scale)+'px';   /* scaled layout height keeps the panel measurement stable */
 
   /* readouts */
   const dev = state.custom ? {n:'Custom'} : DEVICES[state.dev];
@@ -540,7 +678,7 @@ function render(){
   const R = document.getElementById('readouts');
   R.innerHTML = '';
   chip(R,'Viewport ratio', ratioStr(vpAR), '', ultra?'warn':'ok');
-  chip(R,'Hero size', `${fmt(stageW)} × ${fmt(heroH)}`, strat==='ambient'&&stageW<vw?` + ambient ${fmt(vw-stageW)}px`:'' );
+  chip(R,'Hero size', `${fmt(stageW)} × ${fmt(heroH)}`, strat==='maxw'&&gutter>0?` + ${fmt(gutter)}px gutters`:'' );
   chip(R,'Hero container', ratioStr(stageAR));
   chip(R,'Image crop', state.crop, ` (${ratioStr(IR)})`);
   chip(R,'Image lost', (CR>IR? lostV+'%' : lostH+'%'), CR>IR?' of height':' of width', (CR>IR?lostV:lostH)>30?'bad':(CR>IR?lostV:lostH)>18?'warn':'ok');
@@ -567,9 +705,9 @@ function render(){
 
   /* css panel */
   document.getElementById('cssOut').innerHTML =
-`<span class="cm">/* hero height: viewport minus header minus 75% rail peek */</span>
+`<span class="cm">/* hero height: viewport minus 75% rail peek (nav overlays the hero) */</span>
 .hero {
-  height: <span class="hl">max(${MIN_HERO}px, calc(100svh - ${HEADER}px - var(--rail-peek)))</span>;
+  height: <span class="hl">max(${MIN_HERO}px, calc(100svh - var(--rail-peek)))</span>;
 }
 .hero img {
   object-fit: cover;
@@ -578,14 +716,9 @@ function render(){
 <span class="cm">/* ultra-wide switch — aspect ratio, NOT pixel width.
    16″ MacBook (1728×1117 → 1.55:1) never matches; 21:9 & 32:9 do. */</span>
 @media (min-aspect-ratio: 2/1) {   <span class="cm">/* ${ultra?'★ ACTIVE on this viewport':'inactive on this viewport'} */</span>
-${strat==='ambient'||!ultra?
-`  .hero .stage { max-width: <span class="hl">calc(var(--hero-h) * 21 / 9)</span>; margin-inline: auto; }
-  .hero .ambient { <span class="cm">/* blurred copy of same image behind the stage */</span>
-    filter: blur(60px) brightness(.45); transform: scale(1.15);
-  }`
-: strat==='maxw' ?
-`  .hero, .rail { max-width: <span class="hl">2560px</span>; margin-inline: auto; }`
-:`  <span class="cm">/* strategy A: no rule — image keeps covering, crop grows */</span>`}
+${strat==='maxw'?
+`  .nav-inner, .hero, .rail { max-width: <span class="hl">2560px</span>; margin-inline: auto; }`
+:`  <span class="cm">/* full bleed: no extra rules — cover + the focal point absorb the width */</span>`}
 }`;
 }
 
