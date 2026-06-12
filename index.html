@@ -157,7 +157,7 @@
   .focal-marker{position:absolute;z-index:8;width:18px;height:18px;margin:-9px 0 0 -9px;border:2.5px solid #f2f4f8;border-radius:50%;box-shadow:0 0 10px #000000b0, inset 0 0 6px #ffffff55;pointer-events:none}
   .focal-marker.hidden{display:none}
   /* ---------- bottom panels ---------- */
-  .bottom{display:grid;grid-template-columns:300px 1fr;gap:14px;flex:0 0 auto;max-height:280px;min-height:0}
+  .bottom{display:grid;grid-template-columns:300px 1fr;gap:14px;flex:0 0 auto;height:260px;min-height:0}
   .panelbox{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;overflow:auto;min-height:0}
   .panelbox h4{font-size:10.5px;letter-spacing:1.1px;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
   #inspWrap{position:relative;overflow:hidden;border-radius:6px;line-height:0;cursor:crosshair}
@@ -169,12 +169,24 @@
   pre{background:#0e0f13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:11.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:#b6bcc8;overflow-x:auto;white-space:pre}
   pre .hl{color:#f0f2f6;font-weight:600}
   pre .cm{color:#5c616d}
+  /* ---------- focal point picker modal ---------- */
+  #fpModal{position:fixed;inset:0;background:rgba(5,6,9,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100}
+  #fpModal.open{display:flex}
+  .fp-panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:min(920px,92vw);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+  .fp-panel h3{font-size:15px;font-weight:700;margin-bottom:4px}
+  .fp-panel .note{margin:0 0 12px}
+  #fpWrap{position:relative;display:inline-block;cursor:crosshair;line-height:0;border-radius:8px;overflow:hidden}
+  #fpImg{max-width:100%;max-height:60vh;display:block}
+  .fp-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+  .fp-actions button{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12.5px}
+  .fp-actions button.primary{background:#e8eaf0;color:#15171c;border-color:#e8eaf0;font-weight:600}
+  .fp-actions button:disabled{opacity:.45;cursor:default}
   @media (max-width:1100px){
     body{overflow:auto}
     .app{grid-template-columns:1fr;height:auto}
     main{height:auto;overflow:visible}
     aside{border-right:none;border-bottom:1px solid var(--line)}
-    .bottom{grid-template-columns:1fr;max-height:none}
+    .bottom{grid-template-columns:1fr;height:auto}
     #stageArea{min-height:420px}
   }
 </style>
@@ -332,6 +344,21 @@
 </main>
 </div>
 
+<div id="fpModal">
+  <div class="fp-panel">
+    <h3>Set the focal point</h3>
+    <p class="note">Click the most important part of the image — a face, helmet, or subject. Every crop and object-position will be steered to keep this point in frame.</p>
+    <div id="fpWrap">
+      <img id="fpImg" alt="">
+      <div id="fpMark" class="focal-marker hidden"></div>
+    </div>
+    <div class="fp-actions">
+      <button id="fpSkip">Use default (50% · 33%)</button>
+      <button id="fpDone" class="primary" disabled>Set focal point</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ============================================================
    PIPELINE (mirrors a real DAM):
@@ -446,7 +473,7 @@ function sampleSceneURI(){
   return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.replace(/\n\s*/g,' '));
 }
 
-function loadMaster(src, name, focalDefault){
+function loadMaster(src, name, focalDefault, openPicker){
   const img = new Image();
   img.onload = () => {
     master = {img, w: img.naturalWidth, h: img.naturalHeight, name};
@@ -456,8 +483,38 @@ function loadMaster(src, name, focalDefault){
     info.textContent = `✓ ${name} — ${master.w} × ${master.h} (${(master.w/master.h).toFixed(2)}:1)`;
     deriveCrops();
     render();
+    if (openPicker) openFocalPicker();
   };
   img.src = src;
+}
+
+/* ---------- focal point picker (shown after every upload) ---------- */
+const fpModal = document.getElementById('fpModal'), fpImg = document.getElementById('fpImg'),
+      fpMark = document.getElementById('fpMark'), fpDone = document.getElementById('fpDone'),
+      fpSkip = document.getElementById('fpSkip'), fpWrap = document.getElementById('fpWrap');
+let fpTemp = null;
+function openFocalPicker(){
+  fpTemp = null;
+  fpMark.classList.add('hidden');
+  fpDone.disabled = true;
+  fpImg.src = master.img.src;
+  fpModal.classList.add('open');
+}
+fpWrap.addEventListener('click', e=>{
+  const r = fpImg.getBoundingClientRect();
+  const u = clamp((e.clientX-r.left)/r.width, 0, 1);
+  const v = clamp((e.clientY-r.top)/r.height, 0, 1);
+  fpTemp = {x:u, y:v};
+  fpMark.style.left = (u*100)+'%'; fpMark.style.top = (v*100)+'%';
+  fpMark.classList.remove('hidden');
+  fpDone.disabled = false;
+});
+fpDone.onclick = ()=>{ if (fpTemp) focal = fpTemp; closeFocalPicker(); };
+fpSkip.onclick = ()=>{ focal = {x:.5, y:.33}; closeFocalPicker(); };
+function closeFocalPicker(){
+  fpModal.classList.remove('open');
+  deriveCrops();
+  render();
 }
 
 /* ---------- rendition derivation (= the DAM) ---------- */
@@ -528,7 +585,7 @@ fileEl.onchange = ()=>{ if(fileEl.files[0]) readFile(fileEl.files[0]); };
 drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f && f.type.startsWith('image/')) readFile(f); });
 function readFile(f){
   const rd = new FileReader();
-  rd.onload = ()=>loadMaster(rd.result, f.name, {x:.5, y:.33});
+  rd.onload = ()=>loadMaster(rd.result, f.name, {x:.5, y:.33}, true);   /* true → open the focal picker */
   rd.readAsDataURL(f);
 }
 
@@ -746,6 +803,12 @@ ${strat==='maxw'?
 }
 
 window.addEventListener('resize', render);
+/* re-render whenever the stage area itself changes size (first-paint settle, chip wrapping, etc.) */
+if (window.ResizeObserver){
+  let roT;
+  new ResizeObserver(()=>{ clearTimeout(roT); roT = setTimeout(()=>{ if (master) render(); }, 60); })
+    .observe(document.getElementById('stageArea'));
+}
 loadMaster(sampleSceneURI(), 'Sample scene (drop your photo above)', {x:2470/4480, y:268/1280});
 </script>
 </body>
