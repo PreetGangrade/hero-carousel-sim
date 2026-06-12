@@ -37,7 +37,7 @@
   #drop b{color:var(--txt)}
   #imgInfo{font-size:11px;color:var(--ok);margin-top:6px;display:none}
   /* ---------- Main ---------- */
-  main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;height:100vh;overflow:hidden}
+  main{padding:18px 22px;display:flex;flex-direction:column;gap:14px;min-width:0;height:100vh;overflow:auto}
   .readouts{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px;min-width:118px}
   .chip .k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim)}
@@ -45,7 +45,7 @@
   .chip .v small{font-size:11px;font-weight:400;color:var(--dim)}
   .chip.ok .v{color:var(--ok)} .chip.warn .v{color:var(--warn)} .chip.bad .v{color:var(--bad)}
   /* ---------- Stage ---------- */
-  .stagewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;min-height:0}
+  .stagewrap{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;flex:1;display:flex;flex-direction:column;gap:10px;min-height:340px}
   .stagehead{display:flex;justify-content:space-between;align-items:baseline;color:var(--dim);font-size:11.5px}
   .stagehead b{color:var(--txt)}
   #stageArea{flex:1;min-height:0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
@@ -169,6 +169,47 @@
   pre{background:#0e0f13;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font:11.5px/1.6 ui-monospace,Menlo,Consolas,monospace;color:#b6bcc8;overflow-x:auto;white-space:pre}
   pre .hl{color:#f0f2f6;font-weight:600}
   pre .cm{color:#5c616d}
+  /* ============ MOBILE WEB (Figma frame 755:17756 · 393 reference) ============ */
+  #vp .s-mnav{display:none}
+  #vp.mobile .s-navbar{display:none}
+  #vp.mobile .s-mnav{display:block}
+  #vp.mobile .s-nav{height:calc(98px*var(--t));background:none}
+  /* status bar 54 */
+  .s-status{height:calc(54px*var(--t));display:flex;align-items:center;justify-content:space-between;padding:0 calc(26px*var(--t)) 0 calc(38px*var(--t));color:#fff;font-weight:600;font-size:calc(17px*var(--t))}
+  .s-levels{display:flex;gap:calc(7px*var(--t));align-items:center}
+  .s-levels svg{height:calc(12px*var(--t));width:auto}
+  /* nav bar 44: logo left @16, 32px glass/dark/20% circles right @16, gap 12 */
+  .s-mbar{height:calc(44px*var(--t));display:flex;align-items:center;justify-content:space-between;padding:0 calc(16px*var(--t))}
+  .s-mbtns{display:flex;gap:calc(12px*var(--t))}
+  .s-mbtn{width:calc(32px*var(--t));height:calc(32px*var(--t));border-radius:99px;background:rgba(0,15,30,.2);backdrop-filter:blur(10px);display:inline-flex;align-items:center;justify-content:center;color:#fff}
+  .s-mbtn svg{width:calc(20px*var(--t));height:calc(20px*var(--t))}
+  /* hero gradients — exact stops from Figma: bottom 440px #121212 30.6%→88.5%, top dark-80 0.6%→19.9% */
+  #vp.mobile .s-scrim{background:
+    linear-gradient(to top, #121212 30.61%, rgba(26,26,26,0) 88.52%) bottom / 100% calc(440px*var(--t)) no-repeat,
+    linear-gradient(to bottom, rgba(26,26,26,.8) 0.59%, rgba(26,26,26,0) 19.88%) top / 100% 100% no-repeat}
+  /* ContentInfo: centered column, px = viewport/margins 20 */
+  #vp.mobile .s-content{padding:0 var(--m)}
+  #vp.mobile .s-info{width:100%;max-width:100%;align-items:center;text-align:center}
+  #vp.mobile .s-title{font-size:calc(28px*var(--t));line-height:calc(32px*var(--t));text-align:center}
+  #vp.mobile .s-infocol{align-items:center;width:100%}
+  #vp.mobile .s-badges{justify-content:center;padding-top:calc(4px*var(--t))}
+  #vp.mobile .s-desc{font-size:calc(14px*var(--t));text-align:center}
+  #vp.mobile .s-ctas{justify-content:center;gap:calc(10px*var(--t))}
+  /* Watch now: h 38, min-w 160, label 14/22 */
+  #vp.mobile .s-play{height:calc(38px*var(--t));min-width:calc(160px*var(--t));justify-content:center;padding:0 calc(20px*var(--t));font-size:calc(14px*var(--t))}
+  #vp.mobile .s-iconbtn{width:calc(38px*var(--t));height:calc(38px*var(--t))}
+  /* indicators: min-h 44, pt 6 pb 16, active dot 20×8 */
+  #vp.mobile .s-indic{height:auto;min-height:calc(44px*var(--t));padding:calc(6px*var(--t)) 0 calc(16px*var(--t))}
+  #vp.mobile .s-dot.on i{width:calc(20px*var(--t))}
+  /* rail: pt 12 pb 36, pl 20, title xl 20 / h5 26, card gap 8, badge insets 4 */
+  #vp.mobile .s-rail{padding:calc(12px*var(--t)) 0 calc(36px*var(--t)) var(--m)}
+  #vp.mobile .s-rail h3{font-size:calc(20px*var(--t));line-height:calc(26px*var(--t));margin-bottom:calc(12px*var(--t))}
+  #vp.mobile .s-cards{gap:calc(8px*var(--t))}
+  #vp.mobile .s-dur{left:calc(4px*var(--t));bottom:calc(4px*var(--t));background:#4e4e4e;border-radius:calc(4px*var(--t))}
+  #vp.mobile .s-ctitle{font-size:calc(18px*var(--t));line-height:calc(20px*var(--t))}
+  #vp.mobile .b-crating{background:rgba(78,78,78,.6);border-radius:calc(4px*var(--t));font-size:calc(11px*var(--t));min-width:calc(24px*var(--t))}
+  #vp.mobile .s-csub>span:last-child{font-size:calc(14px*var(--t))}
+
   /* ---------- focal point picker modal ---------- */
   #fpModal{position:fixed;inset:0;background:rgba(5,6,9,.72);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:100}
   #fpModal.open{display:flex}
@@ -196,6 +237,14 @@
 <aside>
   <h1>Hero Crop Simulator</h1>
   <div class="sub">Hero + first-rail-peek behavior across devices, crops &amp; strategies</div>
+
+  <div class="group">
+    <label>Platform</label>
+    <div class="btns" id="platforms">
+      <button class="on">Desktop web</button>
+      <button>Mobile web</button>
+    </div>
+  </div>
 
   <div class="group">
     <label>Source image (master)</label>
@@ -265,6 +314,24 @@
       <div id="device">
         <div id="vp">
           <div class="s-nav">
+            <div class="s-mnav">
+              <div class="s-status">
+                <span class="s-time">9:41</span>
+                <span class="s-levels">
+                  <svg viewBox="0 0 20 13" fill="#fff"><rect x="0" y="8" width="3" height="5" rx="1"/><rect x="5" y="5.5" width="3" height="7.5" rx="1"/><rect x="10" y="3" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="13" rx="1"/></svg>
+                  <svg viewBox="0 0 18 13" fill="#fff"><path d="M9 13 3.5 7.4a7.8 7.8 0 0 1 11 0Z" opacity=".4"/><path d="M9 13 5.7 9.6a4.7 4.7 0 0 1 6.6 0Z"/></svg>
+                  <svg viewBox="0 0 28 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.8" stroke="#fff" opacity=".35"/><rect x="2" y="2" width="18" height="9" rx="2.5" fill="#fff"/><path d="M25.5 4.5v4a2.2 2.2 0 0 0 0-4Z" fill="#fff" opacity=".4"/></svg>
+                </span>
+              </div>
+              <div class="s-mbar">
+                <span class="s-wordmark">Logo</span>
+                <span class="s-mbtns">
+                  <span class="s-mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.8" cy="10.8" r="6.3"/><path d="m15.6 15.6 4 4" stroke-linecap="round"/></svg></span>
+                  <span class="s-mbtn"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8.2" r="3.7"/><path d="M4.8 19.6a7.2 7.2 0 0 1 14.4 0Z"/></svg></span>
+                  <span class="s-mbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>
+                </span>
+              </div>
+            </div>
             <div class="s-navbar">
               <div class="s-navleft">
                 <span class="s-wordmark">Logo</span>
@@ -381,6 +448,8 @@ const RATIO_DEFS = {
             note:'Proposed new rendition (2.33:1, cinematic). Near-perfect match for the natural hero container on every laptop/desktop.'},
   '7:2'  : {label:'7:2 · banner',    ratio:7/2,
             note:'Too short. Even full-bleed it reads as a banner; in laptop containers it crops the sides heavily.'},
+  '2:3'  : {label:'2:3 · portrait',  ratio:2/3,
+            note:'Backend portrait rendition — the right source for the mobile portrait hero. 3:2 in a ~0.5:1 container loses ≈60% of its width; 2:3 loses almost nothing.'},
 };
 
 const DERIVES = [
@@ -398,6 +467,13 @@ const DEVICES = [
   {n:'4K @ 1× (worst case)', d:'3840 × 2160 · 16:9', w:3840, h:2160},
   {n:'Ultra-wide 21:9',   d:'3440 × 1440 · 21:9',  w:3440, h:1440},
   {n:'Super ultra-wide 32:9', d:'5120 × 1440 · 32:9', w:5120, h:1440},
+];
+const DEVICES_MOBILE = [
+  {n:'iPhone SE',          d:'375 × 667 · compact',  w:375, h:667},
+  {n:'iPhone 15 / 16',     d:'393 × 852 · Figma ref', w:393, h:852},
+  {n:'iPhone 16 Pro Max',  d:'440 × 956',            w:440, h:956},
+  {n:'Android compact',    d:'360 × 800',            w:360, h:800},
+  {n:'Pixel 9',            d:'412 × 915',            w:412, h:915},
 ];
 
 const FOCALS = [
@@ -428,12 +504,28 @@ const TOK = {
   cardTitleLH: 21,        // line-height/title
   cardSubLH: 20,          // line-height/body-2
 };
+/* mobile tokens — Figma frame 755:17756 at 393 reference */
+const TOKM = {
+  margins: 20,            // viewport/margins (mobile)
+  railPT: 12,             // spacing/24 mobile
+  railPB: 36,             // spacing/64 mobile
+  railTitleLH: 26,        // line-height/h5
+  railGap: 12,
+  cardW: 286,             // card/lg-width @393
+  cardGap: 8,
+  cardInfoGap: 12,
+  cardTextGap: 0,
+  cardTitleLH: 20,
+  cardSubLH: 20,
+};
+const HERO_MIN_M = 420;   // status+nav 98 + centered content stack ~278 + indicators 44
 const HEADROOM = .30;          // focal-aware derivation: focal sits 30% from window top
 const HEAD_FRAC = .055;        // assumed head radius ≈ 5.5% of master height around focal
 const MAX_RENDITION_W = 2200;  // cap derived rendition width (perf only)
 
-const state = { dev:2, crop:'3:2', focal:'focal', strat:'bleed', derive:'focal',
+const state = { platform:'web', dev:2, crop:'3:2', focal:'focal', strat:'bleed', derive:'focal',
                 showFocal:true, clipFold:true, custom:false };
+function curDevices(){ return state.platform==='mobile' ? DEVICES_MOBILE : DEVICES; }
 
 let master = null;            // {img, w, h, name}
 let focal  = {x:.55, y:.21};  // fractions of MASTER
@@ -563,7 +655,32 @@ function buildButtons(boxId, items, get, set, html){
   });
 }
 buildButtons('derives', DERIVES, null, it=>{state.derive=it.k; deriveCrops();}, it=>`${it.n}<small>${it.d}</small>`);
-buildButtons('devices', DEVICES, null, (it,i)=>{state.dev=i; state.custom=false; vwEl.value=it.w; vhEl.value=it.h;}, it=>`${it.n}<small>${it.d}</small>`);
+const devBox = document.getElementById('devices');
+function buildDeviceButtons(){
+  devBox.innerHTML='';
+  curDevices().forEach((d,i)=>{
+    const b=document.createElement('button');
+    b.innerHTML=`${d.n}<small>${d.d}</small>`;
+    b.onclick=()=>{state.dev=i; state.custom=false; vwEl.value=d.w; vhEl.value=d.h; render();};
+    devBox.appendChild(b);
+  });
+}
+function setPlatform(p){
+  if (state.platform===p) return;
+  state.platform=p; state.custom=false;
+  if (p==='mobile'){
+    vwEl.min=320; vwEl.max=520; vhEl.min=568; vhEl.max=1000;
+    state.dev=1; vwEl.value=393; vhEl.value=852;
+    state.crop='2:3';                                   /* portrait rendition for portrait hero */
+  } else {
+    vwEl.min=1000; vwEl.max=5200; vhEl.min=700; vhEl.max=2200;
+    state.dev=2; vwEl.value=1512; vhEl.value=982;
+    state.crop='3:2';
+  }
+  buildDeviceButtons(); render();
+}
+document.querySelectorAll('#platforms button').forEach((b,i)=>{ b.onclick=()=>setPlatform(i?'mobile':'web'); });
+buildDeviceButtons();
 buildButtons('crops', Object.keys(RATIO_DEFS).map(k=>({k})), null, it=>{state.crop=it.k;}, it=>RATIO_DEFS[it.k].label);
 buildButtons('focals', FOCALS, null, it=>{state.focal=it.k;}, it=>`${it.n}<small>${it.d}</small>`);
 buildButtons('strats', STRATS, null, it=>{state.strat=it.k;}, it=>`${it.n}<small>${it.d}</small>`);
@@ -623,6 +740,7 @@ function render(){
   document.getElementById('vwv').textContent = vw;
   document.getElementById('vhv').textContent = vh;
   document.querySelectorAll('#derives button').forEach((b,i)=>b.classList.toggle('on', DERIVES[i].k===state.derive));
+  document.querySelectorAll('#platforms button').forEach((b,i)=>b.classList.toggle('on', (i===1)===(state.platform==='mobile')));
   document.querySelectorAll('#devices button').forEach((b,i)=>b.classList.toggle('on', !state.custom && i===state.dev));
   document.querySelectorAll('#crops button').forEach((b,i)=>b.classList.toggle('on', Object.keys(RATIO_DEFS)[i]===state.crop));
   document.querySelectorAll('#focals button').forEach((b,i)=>b.classList.toggle('on', FOCALS[i].k===state.focal));
@@ -634,27 +752,30 @@ function render(){
   const focalMode = FOCALS.find(f=>f.k===state.focal);
   document.getElementById('cropnote').textContent = crop.note;
 
-  /* type/component scale: everything designed at the 1440 reference frame */
-  const t = Math.max(.85, Math.min(vw/1440, 1.5));
+  /* platform: web designed at 1440 ref (744:16739), mobile at 393 ref (755:17756) */
+  const mobile = state.platform === 'mobile';
+  const REF = mobile ? TOKM : TOK;
+  const t = mobile ? Math.max(.85, Math.min(vw/393, 1.35))
+                   : Math.max(.85, Math.min(vw/1440, 1.5));
   const tr = t;
 
-  /* rail metrics — straight from Figma frame 744:16739 */
-  const cardW = TOK.cardW * tr;
+  /* rail metrics — straight from the Figma frames */
+  const cardW = REF.cardW * tr;
   const thumbH = cardW * 9/16;
-  const railVisible = tr*(TOK.railPT + TOK.railTitleLH + TOK.railGap + TOK.cardInfoGap + TOK.cardTitleLH + TOK.cardTextGap + TOK.cardSubLH) + thumbH;
-  const railBlock = railVisible + tr*TOK.railPB;
+  const railVisible = tr*(REF.railPT + REF.railTitleLH + REF.railGap + REF.cardInfoGap + REF.cardTitleLH + REF.cardTextGap + REF.cardSubLH) + thumbH;
+  const railBlock = railVisible + tr*REF.railPB;
   const peekPct = +peekEl.value;
   document.getElementById('peekv').textContent = peekPct+'%';
   const peek = Math.round(railVisible * peekPct/100);
 
   /* PRIORITY LADDER: 1) hero content never overlaps the nav  2) rail peeks 70%  3) hero maximized.
      If the viewport is too short for both, the PEEK yields — rail slips below the fold. */
-  const minHero = Math.round(HERO_MIN * t);
+  const minHero = Math.round((mobile ? HERO_MIN_M : HERO_MIN) * t);
   const heroH = Math.max(minHero, vh - peek);
   const peekShown = Math.max(0, Math.min(peek, vh - heroH));   // rail actually visible above the fold
   const peekOK = (vh - heroH) >= (peek - 1);
   const vpAR = vw/vh;
-  const ultra = vpAR >= 2;
+  const ultra = !mobile && vpAR >= 2;
   const strat = ultra ? state.strat : 'bleed';
 
   let stageW = vw, gutter = 0;
@@ -664,6 +785,8 @@ function render(){
   /* simulated page */
   const vp = document.getElementById('vp');
   vp.style.setProperty('--t', t);
+  vp.style.setProperty('--m', mobile ? (REF.margins*t)+'px' : REF.margins+'px');
+  vp.classList.toggle('mobile', mobile);
   const pageH = heroH + railBlock;
   const clip = state.clipFold;
   const visH = clip ? Math.min(vh, pageH) : pageH;   /* fold = bottom edge of the viewport */
@@ -690,11 +813,18 @@ function render(){
   const lostV = Math.round((1-(visY1-visY0))*100);
   const lostH = Math.round((1-(visX1-visX0))*100);
 
-  /* verdict: is the (assumed) head fully visible? */
+  /* verdict 1: is the (assumed) head geometrically visible? */
   const h = crop.head;
   const headSafe = h.hy0>=visY0-0.005 && h.hy1<=visY1+0.005 && h.hx0>=visX0-0.005 && h.hx1<=visX1+0.005;
   const headFrac = overlapFrac(h.hx0,h.hx1,visX0,visX1) * overlapFrac(h.hy0,h.hy1,visY0,visY1);
-  const verdict = headSafe ? ['ok','✓ Subject safe'] : headFrac>0.4 ? ['warn','◐ Head partially cropped'] : ['bad','✗ Head cropped off'];
+  /* verdict 2 (Josh's case): visible ≠ legible — is the focal point behind the gradient/text zone?
+     mobile: bottom ~45% of hero is scrim + centered content; web: bottom-left meta block. */
+  const mxC = (crop.fx - visX0)/(visX1 - visX0), myC = (crop.fy - visY0)/(visY1 - visY0);
+  const occluded = mobile ? (myC > 0.55) : (mxC < 0.45 && myC > 0.55);
+  const verdict = !headSafe
+      ? (headFrac>0.4 ? ['warn','◐ Head partially cropped'] : ['bad','✗ Head cropped off'])
+      : occluded ? ['warn','◐ Visible, but behind text/scrim']
+      : ['ok','✓ Subject safe'];
 
   /* focal marker in stage */
   const mark = document.getElementById('focalMark');
@@ -716,7 +846,7 @@ function render(){
 
   /* cards — Figma “16:9 Standard”: neutral placeholder thumbs (dropped image affects the hero ONLY) */
   cardsBox.innerHTML='';
-  const n = Math.ceil(vw/(cardW + TOK.cardGap*tr))+1;
+  const n = Math.ceil(vw/(cardW + REF.cardGap*tr))+1;
   for(let i=0;i<n;i++){
     const c=document.createElement('div'); c.className='s-card'; c.style.width=cardW+'px';
     c.innerHTML = `<div class="s-thumb"><span class="s-dur">17 min</span></div>
@@ -728,7 +858,7 @@ function render(){
   const railEl = document.querySelector('.s-rail');
   const navbarEl = document.querySelector('.s-navbar');
   if (strat==='maxw'){
-    railEl.style.paddingLeft = (gutter + TOK.margins)+'px';
+    railEl.style.paddingLeft = (gutter + REF.margins)+'px';
     railEl.style.paddingRight = gutter+'px';   /* cards clip at the content column edge */
     navbarEl.style.paddingLeft = navbarEl.style.paddingRight = (gutter + 64*t)+'px';  /* nav follows the max-width */
   } else {
@@ -744,10 +874,12 @@ function render(){
   device.style.marginBottom = (visH*(scale-1))+'px';        /* reclaim the space the scale freed (keeps layout stable) */
 
   /* readouts */
-  const dev = state.custom ? {n:'Custom'} : DEVICES[state.dev];
+  const dev = state.custom ? {n:'Custom'} : curDevices()[state.dev];
   document.getElementById('devLabel').textContent = `${dev.n} — ${vw} × ${vh}`;
   document.getElementById('scaleLabel').textContent = Math.round(scale*100)+'%';
-  document.getElementById('modeLabel').innerHTML = (ultra
+  document.getElementById('modeLabel').innerHTML = (mobile
+    ? `<b style="color:var(--ok)">MOBILE PORTRAIT</b> · ${state.crop==='2:3'?'portrait rendition':'⚠ landscape rendition in a portrait container'}`
+    : ultra
     ? `<b style="color:var(--warn)">ULTRA-WIDE MODE</b> · strategy ${strat.toUpperCase()}`
     : `<b style="color:var(--ok)">FULL BLEED</b> · viewport &lt; 2:1`)
     + (peekOK ? '' : ' &nbsp;·&nbsp; <b style="color:var(--warn)">PEEK YIELDED</b> — viewport too short, rail scrolls below the fold');
@@ -768,7 +900,11 @@ function render(){
   insp.src = crop.src;
   const wrap = document.getElementById('inspWrap');
   requestAnimationFrame(()=>{
-    const iw = wrap.clientWidth, ih = iw/IR;
+    const availW = wrap.parentElement.clientWidth - 32;   /* panel width minus padding */
+    let iw = availW, ih = iw/IR;
+    const maxIH = 165;                                    /* cap height so portrait crops don't overflow the panel */
+    if (ih > maxIH){ ih = maxIH; iw = ih*IR; }
+    wrap.style.width = iw+'px';
     wrap.style.height = ih+'px';
     const winEl = document.getElementById('inspWin');
     winEl.style.left=(visX0*iw)+'px'; winEl.style.top=(visY0*ih)+'px';
@@ -782,7 +918,22 @@ function render(){
     : 'Perfect ratio match — nothing cropped. Click anywhere to move the focal point.';
 
   /* css panel */
-  document.getElementById('cssOut').innerHTML =
+  document.getElementById('cssOut').innerHTML = mobile ?
+`<span class="cm">/* MOBILE PORTRAIT — same law, same focal metadata, different rendition.
+   priority ladder: 1) content never overlaps nav  2) rail peeks ${peekPct}%  3) hero maximized. */</span>
+.hero {
+  height: <span class="hl">max(var(--hero-min), calc(100svh - var(--rail-peek)))</span>;  <span class="cm">/* --hero-min = ${minHero}px */</span>
+}
+.hero img {
+  object-fit: cover;
+  object-position: <span class="hl">${(px*100).toFixed(0)}% ${(py*100).toFixed(0)}%</span>;  <span class="cm">/* ${focalMode.k==='focal'?'from backend focal metadata':focalMode.k==='smart'?'static top-bias default':'no metadata (today)'} */</span>
+}
+<span class="cm">/* container ≈ ${ratioStr(stageAR)} (portrait) — serve the 2:3 PORTRAIT rendition.
+   ${state.crop==='2:3'?'✓ correct rendition selected':'★ a landscape rendition here discards '+(CR<IR?lostH:lostV)+'% of the image'} */</span>
+&lt;img srcset="cover_portrait.jpg?w=480 480w, ?w=800 800w, ?w=1200 1200w" sizes="100vw"&gt;
+<span class="cm">/* legibility ≠ visibility: bottom ~45% sits under the gradient + content stack.
+   focal points must land ABOVE that zone, or the verdict flags it. */</span>`
+:
 `<span class="cm">/* priority ladder: 1) content never overlaps nav  2) rail peeks ${peekPct}%  3) hero maximized.
    --hero-min = nav + content stack + breathing = ${minHero}px at this scale.
    When the viewport is too short for both, the peek yields and the rail scrolls. */</span>
