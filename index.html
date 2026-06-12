@@ -209,6 +209,14 @@
   </div>
 
   <div class="group">
+    <label>First rail peek</label>
+    <div class="sliders">
+      <div class="row"><span>%</span><input type="range" id="peek" min="50" max="100" step="1" value="70"><b id="peekv">70%</b></div>
+    </div>
+    <div class="note">How much of the first rail must be visible above the fold. Hero height = viewport − this.</div>
+  </div>
+
+  <div class="group">
     <label>Backend crop used for hero</label>
     <div class="btns" id="crops"></div>
     <div class="note" id="cropnote"></div>
@@ -296,7 +304,7 @@
             <div class="s-cards" id="cards"></div>
           </div>
         </div>
-        <div id="foldline"><span>FOLD — 75% of rail above this line</span></div>
+        <div id="foldline"><span>FOLD — 70% of rail above this line</span></div>
         <div id="belowfold"></div>
       </div>
     </div>
@@ -377,7 +385,9 @@ const STRATS = [
 ];
 
 /* Figma tokens (Cosmos) — true values at the 1440 reference frame (744:16739) */
-const PEEK_FRACTION = .75, MIN_HERO = 400;
+/* hero minimum derived from what must FIT inside it (not a magic number):
+   nav 136 + content stack ~302 (2-line title, badges, 3-line desc, buttons, indicators) + 24 breathing */
+const HERO_MIN = 462;
 const TOK = {
   margins: 56,            // viewport/margins
   railPT: 18,             // spacing/36
@@ -395,7 +405,7 @@ const HEADROOM = .30;          // focal-aware derivation: focal sits 30% from wi
 const HEAD_FRAC = .055;        // assumed head radius ≈ 5.5% of master height around focal
 const MAX_RENDITION_W = 2200;  // cap derived rendition width (perf only)
 
-const state = { dev:2, crop:'21:9', focal:'focal', strat:'bleed', derive:'focal',
+const state = { dev:2, crop:'3:2', focal:'focal', strat:'bleed', derive:'focal',
                 showFocal:true, clipFold:true, custom:false };
 
 let master = null;            // {img, w, h, name}
@@ -504,9 +514,10 @@ buildButtons('strats', STRATS, null, it=>{state.strat=it.k;}, it=>`${it.n}<small
 document.getElementById('togFocal').onclick = ()=>{state.showFocal=!state.showFocal; render();};
 document.getElementById('togFold').onclick = ()=>{state.clipFold=!state.clipFold; render();};
 
-const vwEl=document.getElementById('vw'), vhEl=document.getElementById('vh');
+const vwEl=document.getElementById('vw'), vhEl=document.getElementById('vh'), peekEl=document.getElementById('peek');
 vwEl.oninput = ()=>{state.custom=true; render();};
 vhEl.oninput = ()=>{state.custom=true; render();};
+peekEl.oninput = render;
 
 /* ---------- drop zone ---------- */
 const drop = document.getElementById('drop'), fileEl = document.getElementById('file');
@@ -575,10 +586,16 @@ function render(){
   const thumbH = cardW * 9/16;
   const railVisible = tr*(TOK.railPT + TOK.railTitleLH + TOK.railGap + TOK.cardInfoGap + TOK.cardTitleLH + TOK.cardTextGap + TOK.cardSubLH) + thumbH;
   const railBlock = railVisible + tr*TOK.railPB;
-  const peek = Math.round(railVisible * PEEK_FRACTION);
+  const peekPct = +peekEl.value;
+  document.getElementById('peekv').textContent = peekPct+'%';
+  const peek = Math.round(railVisible * peekPct/100);
 
-  /* hero sizing — nav floats OVER the hero (Figma frame), so no header offset */
-  const heroH = Math.max(MIN_HERO, vh - peek);
+  /* PRIORITY LADDER: 1) hero content never overlaps the nav  2) rail peeks 70%  3) hero maximized.
+     If the viewport is too short for both, the PEEK yields — rail slips below the fold. */
+  const minHero = Math.round(HERO_MIN * t);
+  const heroH = Math.max(minHero, vh - peek);
+  const peekShown = Math.max(0, Math.min(peek, vh - heroH));   // rail actually visible above the fold
+  const peekOK = (vh - heroH) >= (peek - 1);
   const vpAR = vw/vh;
   const ultra = vpAR >= 2;
   const strat = ultra ? state.strat : 'bleed';
@@ -636,6 +653,7 @@ function render(){
   const below = document.getElementById('belowfold');
   foldEl.style.display = clip ? 'none':'block';
   foldEl.style.top = vh+'px';
+  foldEl.querySelector('span').textContent = `FOLD — ${peekPct}% of rail above this line`;
   below.style.top = vh+'px'; below.style.height = Math.max(0, pageH-vh)+'px';
   below.style.display = clip ? 'none':'block';
 
@@ -665,15 +683,17 @@ function render(){
   const area = document.getElementById('stageArea');
   const scale = Math.min((area.clientWidth-8)/vw, (area.clientHeight-8)/visH, 1);
   device.style.transform = `scale(${scale})`;
-  device.style.height = (visH*scale)+'px';   /* scaled layout height keeps the panel measurement stable */
+  device.style.height = visH+'px';                          /* true box → outline wraps ALL content */
+  device.style.marginBottom = (visH*(scale-1))+'px';        /* reclaim the space the scale freed (keeps layout stable) */
 
   /* readouts */
   const dev = state.custom ? {n:'Custom'} : DEVICES[state.dev];
   document.getElementById('devLabel').textContent = `${dev.n} — ${vw} × ${vh}`;
   document.getElementById('scaleLabel').textContent = Math.round(scale*100)+'%';
-  document.getElementById('modeLabel').innerHTML = ultra
+  document.getElementById('modeLabel').innerHTML = (ultra
     ? `<b style="color:var(--warn)">ULTRA-WIDE MODE</b> · strategy ${strat.toUpperCase()}`
-    : `<b style="color:var(--ok)">FULL BLEED</b> · viewport &lt; 2:1`;
+    : `<b style="color:var(--ok)">FULL BLEED</b> · viewport &lt; 2:1`)
+    + (peekOK ? '' : ' &nbsp;·&nbsp; <b style="color:var(--warn)">PEEK YIELDED</b> — viewport too short, rail scrolls below the fold');
 
   const R = document.getElementById('readouts');
   R.innerHTML = '';
@@ -682,7 +702,8 @@ function render(){
   chip(R,'Hero container', ratioStr(stageAR));
   chip(R,'Image crop', state.crop, ` (${ratioStr(IR)})`);
   chip(R,'Image lost', (CR>IR? lostV+'%' : lostH+'%'), CR>IR?' of height':' of width', (CR>IR?lostV:lostH)>30?'bad':(CR>IR?lostV:lostH)>18?'warn':'ok');
-  chip(R,'Rail peek', fmt(peek)+'px', ' (75% of rail)');
+  if (peekOK) chip(R,'Rail peek', fmt(peekShown)+'px', ` (${peekPct}% of rail)`);
+  else chip(R,'Rail peek', fmt(peekShown)+'px', ` visible — target ${fmt(peek)}px`, 'warn');
   chip(R,'Verdict', verdict[1],'',verdict[0]);
 
   /* inspector */
@@ -705,9 +726,11 @@ function render(){
 
   /* css panel */
   document.getElementById('cssOut').innerHTML =
-`<span class="cm">/* hero height: viewport minus 75% rail peek (nav overlays the hero) */</span>
+`<span class="cm">/* priority ladder: 1) content never overlaps nav  2) rail peeks ${peekPct}%  3) hero maximized.
+   --hero-min = nav + content stack + breathing = ${minHero}px at this scale.
+   When the viewport is too short for both, the peek yields and the rail scrolls. */</span>
 .hero {
-  height: <span class="hl">max(${MIN_HERO}px, calc(100svh - var(--rail-peek)))</span>;
+  height: <span class="hl">max(var(--hero-min), calc(100svh - var(--rail-peek)))</span>;  <span class="cm">/* ${peekOK?'peek honored here':'★ peek yielded on this viewport'} */</span>
 }
 .hero img {
   object-fit: cover;
